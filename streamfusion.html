@@ -1,0 +1,5757 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamFusion - Streaming Entertainment</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    /* Variables and global configuration */
+    :root {
+      --primary-color: #121212;
+      --secondary-color: #8C52FF;
+      --accent-color: #5E17EB;
+      --dark-bg: #0A0A0A;
+      --dark-bg-lighter: #1A1A1A;
+      --card-bg: #252525;
+      --text-color: #FFFFFF;
+      --text-secondary: #B3B3B3;
+      --border-color: #333333;
+      --transition-speed: 0.3s;
+      --border-radius: 12px;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --error-color: #ff5252;
+      --success-color: #4caf50;
+    }
+
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-color);
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      background: none;
+      outline: none;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--secondary-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-color);
+    }
+
+    /* App Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "sidebar header"
+        "sidebar main";
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      grid-area: sidebar;
+      background-color: var(--dark-bg-lighter);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      border-right: 1px solid var(--border-color);
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-img {
+      height: 35px;
+      width: auto;
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-section {
+      margin-bottom: 2rem;
+    }
+
+    .nav-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      transition: background-color var(--transition-speed);
+      font-weight: 500;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-link.active {
+      background-color: rgba(140, 82, 255, 0.15);
+      color: var(--secondary-color);
+    }
+
+    .nav-link i {
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .services-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .service-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      width: calc(50% - 0.5rem);
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      background-color: rgba(255, 255, 255, 0.05);
+      transition: all var(--transition-speed);
+      cursor: pointer;
+    }
+
+    .service-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .service-item.active {
+      background-color: rgba(140, 82, 255, 0.15);
+      border: 1px solid var(--secondary-color);
+    }
+
+    .service-logo {
+      height: 30px;
+      width: auto;
+      filter: grayscale(100%);
+      transition: filter var(--transition-speed);
+    }
+
+    .service-item:hover .service-logo,
+    .service-item.active .service-logo {
+      filter: none;
+    }
+
+    .service-name {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .service-item.active .service-name {
+      color: var(--secondary-color);
+    }
+
+    /* Header */
+    .header {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background-color: var(--dark-bg);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 90;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: all var(--transition-speed);
+    }
+
+    .search-input:focus {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--secondary-color);
+      outline: none;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .user-notification {
+      position: relative;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      transition: color var(--transition-speed);
+    }
+
+    .user-notification:hover {
+      color: var(--text-color);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 16px;
+      height: 16px;
+      background-color: var(--secondary-color);
+      border-radius: 50%;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--secondary-color);
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Main Content */
+    .main-content {
+      grid-area: main;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all var(--transition-speed);
+    }
+
+    .filter-btn:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-btn.active {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+
+    /* Featured Content */
+    .featured-content {
+      position: relative;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+      height: 400px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .featured-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(10, 10, 10, 0.9) 0%, rgba(10, 10, 10, 0.7) 50%, rgba(10, 10, 10, 0.4) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+    }
+
+    .featured-badge {
+      display: inline-block;
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .featured-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      max-width: 60%;
+    }
+
+    .featured-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .featured-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .featured-rating i {
+      color: var(--secondary-color);
+    }
+
+    .featured-description {
+      max-width: 50%;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .featured-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all var(--transition-speed);
+    }
+
+    .btn-primary {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    /* Carousel Styles */
+    .carousel-container {
+      position: relative;
+      margin-bottom: 3rem;
+    }
+
+    .carousel-content {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 0.5rem 0;
+      gap: 1rem;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+
+    .carousel-content::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+
+    .carousel-item {
+      flex: 0 0 auto;
+      width: 180px;
+    }
+
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: all var(--transition-speed);
+    }
+
+    .carousel-nav:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .carousel-nav.prev {
+      left: -20px;
+    }
+
+    .carousel-nav.next {
+      right: -20px;
+    }
+
+    .content-card {
+      position: relative;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: all var(--transition-speed);
+      cursor: pointer;
+      background-color: var(--dark-bg-lighter);
+    }
+
+    .content-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--box-shadow);
+    }
+
+    .card-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      z-index: 2;
+    }
+
+    .card-rating {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      z-index: 2;
+    }
+
+    .card-rating i {
+      color: var(--secondary-color);
+    }
+
+    .card-info {
+      padding: 1rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .card-actions {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      opacity: 0;
+      transition: opacity var(--transition-speed);
+    }
+
+    .content-card:hover .card-actions {
+      opacity: 1;
+    }
+
+    .card-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--secondary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all var(--transition-speed);
+    }
+
+    .card-btn:hover {
+      transform: scale(1.1);
+      background-color: var(--accent-color);
+    }
+
+    /* Movie Details Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .modal-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      background-color: var(--dark-bg-lighter);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center top;
+      z-index: -1;
+    }
+
+    .modal-backdrop-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(26, 26, 26, 0.7) 0%, var(--dark-bg-lighter) 100%);
+    }
+
+    .modal-content {
+      position: relative;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      z-index: 10;
+      transition: background-color var(--transition-speed);
+    }
+
+    .modal-close:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .modal-poster {
+      flex: 0 0 200px;
+    }
+
+    .modal-poster img {
+      width: 100%;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .modal-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .modal-meta {
+      display: flex;
+      gap: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .modal-rating {
+      color: var(--secondary-color);
+    }
+
+    .modal-genres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-genre {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .modal-overview {
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .modal-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+
+    .detail-value {
+      color: var(--text-secondary);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: auto;
+    }
+
+    .seasons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .season-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    .episode-count {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Loading spinner */
+    .spinner-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      backdrop-filter: blur(5px);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid transparent;
+      border-top-color: var(--secondary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .spinner:before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      border: 3px solid transparent;
+      border-top-color: var(--accent-color);
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+    }
+
+    .spinner:after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      border: 3px solid transparent;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      text-align: center;
+      background-color: var(--dark-bg-lighter);
+      border-radius: var(--border-radius);
+      margin: 2rem 0;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-text {
+      color: var(--text-secondary);
+      max-width: 400px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Mobile menu toggle */
+    .mobile-menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      color: var(--text-color);
+    }
+
+    /* Auth Styles */
+    .auth-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .auth-modal {
+      width: 100%;
+      max-width: 400px;
+      background-color: var(--dark-bg-lighter);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+    }
+
+    .auth-header {
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .auth-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .auth-form {
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: all var(--transition-speed);
+    }
+
+    .form-input:focus {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--secondary-color);
+      outline: none;
+    }
+
+    .form-error {
+      color: var(--error-color);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .form-success {
+      color: var(--success-color);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+
+    .auth-btn:hover {
+      background-color: var(--accent-color);
+    }
+
+    .auth-btn:disabled {
+      background-color: rgba(255, 255, 255, 0.2);
+      cursor: not-allowed;
+    }
+
+    .auth-footer {
+      padding: 1rem 1.5rem;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .auth-link {
+      color: var(--secondary-color);
+      cursor: pointer;
+      transition: color var(--transition-speed);
+    }
+
+    .auth-link:hover {
+      color: var(--accent-color);
+      text-decoration: underline;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+    }
+
+    .auth-divider-line {
+      flex: 1;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+
+    .auth-divider-text {
+      padding: 0 1rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .auth-social-btns {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .auth-social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all var(--transition-speed);
+    }
+
+    .auth-social-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Admin Panel Styles */
+    .admin-panel {
+      padding: 1.5rem;
+      background-color: var(--dark-bg-lighter);
+      border-radius: var(--border-radius);
+      margin-bottom: 2rem;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-tab {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border-bottom: 2px solid transparent;
+    }
+
+    .admin-tab:hover {
+      color: var(--secondary-color);
+    }
+
+    .admin-tab.active {
+      color: var(--secondary-color);
+      border-bottom-color: var(--secondary-color);
+    }
+
+    .admin-content {
+      min-height: 300px;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table th {
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+
+    .admin-table tr:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .admin-action-btn {
+      padding: 0.5rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      transition: all var(--transition-speed);
+    }
+
+    .admin-action-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .admin-action-btn.delete {
+      color: var(--error-color);
+    }
+
+    .admin-action-btn.edit {
+      color: var(--secondary-color);
+    }
+
+    .admin-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .admin-form .form-group:last-child {
+      grid-column: span 2;
+    }
+
+    .admin-message-form {
+      margin-top: 1rem;
+    }
+
+    .admin-message-form textarea {
+      width: 100%;
+      min-height: 100px;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    /* User dropdown menu */
+    .user-dropdown {
+      position: relative;
+    }
+
+    .user-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      width: 200px;
+      background-color: var(--dark-bg-lighter);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all var(--transition-speed);
+    }
+
+    .user-dropdown-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .user-dropdown-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .user-dropdown-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .user-dropdown-email {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .user-dropdown-items {
+      padding: 0.5rem 0;
+    }
+
+    .user-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      transition: background-color var(--transition-speed);
+      cursor: pointer;
+    }
+
+    .user-dropdown-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .user-dropdown-item i {
+      font-size: 1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .user-dropdown-divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 0.5rem 0;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 5000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      min-width: 250px;
+      max-width: 350px;
+      background-color: var(--dark-bg-lighter);
+      color: var(--text-color);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+      box-shadow: var(--box-shadow);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    .toast.hide {
+      animation: slideOut 0.3s ease forwards;
+    }
+
+    .toast-icon {
+      font-size: 1.2rem;
+      padding-top: 0.1rem;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .toast-message {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .toast-close {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color var(--transition-speed);
+    }
+
+    .toast-close:hover {
+      color: var(--text-color);
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success-color);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--error-color);
+    }
+
+    .toast-info .toast-icon {
+      color: var(--secondary-color);
+    }
+
+    /* User Profile Styles */
+    .profile-container {
+      background-color: var(--dark-bg-lighter);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: white;
+      text-transform: uppercase;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .profile-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .profile-stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+    }
+
+    .profile-stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .profile-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-tab {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border-bottom: 2px solid transparent;
+    }
+
+    .profile-tab:hover {
+      color: var(--secondary-color);
+    }
+
+    .profile-tab.active {
+      color: var(--secondary-color);
+      border-bottom-color: var(--secondary-color);
+    }
+
+    .profile-content {
+      min-height: 300px;
+    }
+
+    .profile-section {
+      margin-bottom: 2rem;
+    }
+
+    .profile-section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--secondary-color);
+    }
+
+    .profile-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .profile-form .form-group:last-child {
+      grid-column: span 2;
+    }
+
+    .message-form {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .message-form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .message-form-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .message-counter {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .message-list {
+      margin-top: 2rem;
+    }
+
+    .message-item {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .message-item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .message-date {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .message-text {
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .message-status {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .message-status.read {
+      color: var(--success-color);
+    }
+
+    /* Responsive styles */
+    @media (max-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "main";
+      }
+
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 280px;
+        height: 100%;
+        transition: left var(--transition-speed);
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .featured-title {
+        font-size: 2rem;
+        max-width: 100%;
+      }
+
+      .featured-description {
+        max-width: 100%;
+      }
+
+      .content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .carousel-nav.prev {
+        left: 0;
+      }
+
+      .carousel-nav.next {
+        right: 0;
+      }
+
+      .profile-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .profile-form {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-form .form-group:last-child {
+        grid-column: span 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+
+      .main-content {
+        padding: 1rem;
+      }
+
+      .featured-content {
+        height: 300px;
+      }
+
+      .featured-title {
+        font-size: 1.5rem;
+      }
+
+      .featured-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .modal-header {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .modal-poster {
+        flex: 0 0 auto;
+        max-width: 180px;
+        margin: 0 auto;
+      }
+
+      .modal-title {
+        font-size: 1.5rem;
+      }
+
+      .carousel-item {
+        width: 150px;
+      }
+
+      .admin-form {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-form .form-group:last-child {
+        grid-column: span 1;
+      }
+
+      .profile-stats {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .search-container {
+        max-width: 200px;
+      }
+
+      .content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+      }
+
+      .card-info {
+        padding: 0.5rem;
+      }
+
+      .card-title {
+        font-size: 0.9rem;
+      }
+
+      .modal-content {
+        padding: 1rem;
+      }
+
+      .carousel-item {
+        width: 120px;
+      }
+
+      .auth-modal {
+        max-width: 100%;
+      }
+
+      .profile-tabs {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading spinner -->
+  <div class="spinner-container" id="spinner-container">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Auth container -->
+  <div class="auth-container" id="auth-container" style="display: none;">
+    <div class="auth-modal">
+      <div class="auth-header">
+        <h2 class="auth-title" id="auth-title">Iniciar sesión</h2>
+        <p class="auth-subtitle" id="auth-subtitle">Accede a tu cuenta para disfrutar de StreamFusion</p>
+      </div>
+      <div class="auth-form" id="auth-form-container">
+        <!-- Auth form will be dynamically generated -->
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container" id="app-container" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqC8k7QO6KNqYZXNkGt-F0knO2XMq4VDjl0_sM6sbPa3FEt4_PyIs3oiThacqu1-jG7-8v7a14KGcjn8_YBEI33yLlrmcobGnt-TT9_TNMie71bwN_d9fSX6WTHSv4gtZgtN8CRyTIey5fRLOEFQmoYQ-bZImSBQXfvL6vMlJ55WORvg/s1600/StreamFusion.png" alt="StreamFusion" class="logo-img">
+        <h1 class="logo-text">StreamFusion</h1>
+      </div>
+
+      <div class="nav-section">
+        <h2 class="nav-title">Menú</h2>
+        <div class="nav-links">
+          <a href="#" class="nav-link active" data-section="home">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+          <a href="#" class="nav-link" data-section="movies">
+            <i class="fas fa-film"></i>
+            <span>Películas</span>
+          </a>
+          <a href="#" class="nav-link" data-section="series">
+            <i class="fas fa-tv"></i>
+            <span>Series</span>
+          </a>
+          <a href="#" class="nav-link" data-section="animes">
+            <i class="fas fa-dragon"></i>
+            <span>Doramas</span>
+          </a>
+          <a href="#" class="nav-link" data-section="my-list">
+            <i class="fas fa-bookmark"></i>
+            <span>Mi Lista</span>
+          </a>
+          <a href="#" class="nav-link" data-section="profile">
+            <i class="fas fa-user"></i>
+            <span>Mi Perfil</span>
+          </a>
+          <a href="#" class="nav-link admin-link" data-section="admin" style="display: none;">
+            <i class="fas fa-shield-alt"></i>
+            <span>Admin Panel</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <h2 class="nav-title">Plataformas</h2>
+        <div class="services-container" id="streaming-services">
+          <div class="service-item" data-service="netflix">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Netflix_logo.svg" alt="Netflix" class="service-logo">
+            <span class="service-name">Netflix</span>
+          </div>
+          <div class="service-item" data-service="disney">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+" class="service-logo">
+            <span class="service-name">Disney+</span>
+          </div>
+          <div class="service-item" data-service="hbo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Max_logo.svg" alt="HBO Max" class="service-logo">
+            <span class="service-name">HBO Max</span>
+          </div>
+          <div class="service-item" data-service="prime">
+            <img src="https://cdn.worldvectorlogo.com/logos/amazon-prime-video-1.svg" alt="Prime Video" class="service-logo">
+            <span class="service-name">Prime</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <h2 class="nav-title">Géneros</h2>
+        <div class="nav-links" id="genre-list">
+          <a href="#" class="nav-link" data-genre="28">
+            <i class="fas fa-fire"></i>
+            <span>Acción</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="12">
+            <i class="fas fa-compass"></i>
+            <span>Aventura</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="35">
+            <i class="fas fa-laugh"></i>
+            <span>Comedia</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="80">
+            <i class="fas fa-mask"></i>
+            <span>Crimen</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="18">
+            <i class="fas fa-theater-masks"></i>
+            <span>Drama</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="27">
+            <i class="fas fa-ghost"></i>
+            <span>Terror</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="10749">
+            <i class="fas fa-heart"></i>
+            <span>Romance</span>
+          </a>
+          <a href="#" class="nav-link" data-genre="878">
+            <i class="fas fa-rocket"></i>
+            <span>Ciencia Ficción</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+      <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar películas, series...">
+      </div>
+
+      <div class="user-menu">
+        <a href="#" class="user-notification">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </a>
+        <div class="user-dropdown">
+          <div class="user-avatar" id="user-avatar">
+            <img src="https://i.pravatar.cc/150?img=12" alt="User Avatar" id="avatar-img" style="display: none;">
+            <span id="avatar-text"></span>
+          </div>
+          <div class="user-dropdown-menu" id="user-dropdown-menu">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-name" id="dropdown-user-name">Usuario</div>
+              <div class="user-dropdown-email" id="dropdown-user-email">usuario@example.com</div>
+            </div>
+            <div class="user-dropdown-items">
+              <div class="user-dropdown-item" id="profile-link">
+                <i class="fas fa-user"></i>
+                <span>Mi Perfil</span>
+              </div>
+              <div class="user-dropdown-item" id="settings-link">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+              </div>
+              <div class="user-dropdown-divider"></div>
+              <div class="user-dropdown-item" id="logout-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Content will be dynamically generated -->
+    </main>
+  </div>
+
+  <!-- Movie Details Modal Container -->
+  <div id="movie-details-modal-container"></div>
+
+  <!-- Trailer Modal Container -->
+  <div id="trailer-modal-container"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrNnQQcKOpaZguVF4myX8TSQseh5sQf8s",
+      authDomain: "proyecto-licencia-adf0f.firebaseapp.com",
+      projectId: "proyecto-licencia-adf0f",
+      storageBucket: "proyecto-licencia-adf0f.firebasestorage.app",
+      messagingSenderId: "632117204154",
+      appId: "1:632117204154:web:b73b5a1a39457fbb47de83",
+      measurementId: "G-LXFTJXCNF3"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Enable Firestore offline persistence
+    db.enablePersistence()
+      .catch((err) => {
+        if (err.code === 'failed-precondition') {
+          // Multiple tabs open, persistence can only be enabled in one tab at a time
+          console.log('Persistence failed: Multiple tabs open');
+        } else if (err.code === 'unimplemented') {
+          // The current browser does not support all of the features required for persistence
+          console.log('Persistence not supported by this browser');
+        }
+      });
+
+    // Admin email
+    const ADMIN_EMAIL = "javiervelasquez0618@gmail.com";
+
+    // API Configuration
+    const API_KEY = '32e5e53999e380a0291d66fb304153fe';
+    const API_BASE_URL = 'https://api.themoviedb.org/3';
+    const IMG_BASE_URL = 'https://image.tmdb.org/t/p';
+
+    // IDs destacados para el featured content
+    const featuredMovieIds = [762509, 76341]; // Dune: Part Two, Interstellar
+    const featuredSeriesIds = [94664, 1399]; // Demon Slayer, Game of Thrones
+
+    // Content IDs for different categories
+    const contentIds = {
+      // Películas populares
+      inicioMovieIds: [777443, 1333099, 447273, 9053, 762509, 117251, 117263, 974576, 950396],
+      // Series populares
+      inicioSeriesIds: [240576, 46298, 71024, 94664, 121964, 72505, 213402, 259140, 261298],
+      netflixMovieIds: [993710, 851644, 49046, 497582, 829280, 748167, 646097, 961323, 555604],
+      netflixSeriesIds: [71024, 207332, 99966, 253905, 94605, 208730, 63174, 154825, 258707],
+      disneyMovieIds: [447273, 762509, 1241982, 11238, 508442, 338958, 620705, 354912, 10895],
+      disneySeriesIds: [138501, 120734, 84958, 1403, 92749, 456, 82856],
+      hboMovieIds: [693134, 872585, 787699, 438631, 565770, 76341],
+      hboSeriesIds: [94997, 1399],
+      primeMovieIds: [588228, 1094138, 1010581, 1019411, 1029528, 359410, 629176, 593910],
+      primeSeriesIds: [84773, 76479],
+      doramasSeriesIds: [221851, 99966, 253905, 226529, 108284, 74682, 63767, 5178, 154825, 112888],
+      doramasMovieIds: [1405338, 851644, 1291559, 488623],
+    };
+
+    // DOM Elements
+    const spinnerContainer = document.getElementById('spinner-container');
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const searchInput = document.getElementById('search-input');
+    const mainContent = document.getElementById('main-content');
+    const movieDetailsModalContainer = document.getElementById('movie-details-modal-container');
+    const authContainer = document.getElementById('auth-container');
+    const authFormContainer = document.getElementById('auth-form-container');
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const appContainer = document.getElementById('app-container');
+    const userAvatar = document.getElementById('user-avatar');
+    const avatarImg = document.getElementById('avatar-img');
+    const avatarText = document.getElementById('avatar-text');
+    const userDropdownMenu = document.getElementById('user-dropdown-menu');
+    const dropdownUserName = document.getElementById('dropdown-user-name');
+    const dropdownUserEmail = document.getElementById('dropdown-user-email');
+    const logoutLink = document.getElementById('logout-link');
+    const adminLink = document.querySelector('.admin-link');
+    const toastContainer = document.getElementById('toast-container');
+    const profileLink = document.getElementById('profile-link');
+
+    // State variables
+    let currentSection = 'home';
+    let currentService = null;
+    let currentGenre = null;
+    let featuredContent = [];
+    let trendingContentData = [];
+    let trendingMoviesData = [];
+    let trendingSeriesData = [];
+    let moviesContent = [];
+    let seriesContent = [];
+    let continueWatchingContentData = [];
+    let currentUser = null;
+    let isAdmin = false;
+    let users = [];
+    let messages = [];
+    let userMessages = [];
+    let dailyMessageCount = 0;
+    let lastMessageDate = null;
+
+    // Add variables for notifications
+    let userNotifications = [];
+    let unreadNotificationsCount = 0;
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+
+    // Main initialization function
+    function initApp() {
+      // Show spinner
+      showSpinner();
+
+      // Check if user is already logged in
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          // User is signed in
+          handleUserSignedIn(user);
+        } else {
+          // No user is signed in, show auth screen
+          showAuthScreen();
+        }
+      });
+
+      // Initialize event listeners
+      initEventListeners();
+    }
+
+    // Handle user signed in
+    async function handleUserSignedIn(user) {
+      currentUser = user;
+      
+      // Check if user is admin
+      isAdmin = user.email === ADMIN_EMAIL;
+      
+      // Show admin link if user is admin
+      if (isAdmin) {
+        adminLink.style.display = 'flex';
+      } else {
+        adminLink.style.display = 'none';
+      }
+      
+      // Update user info in UI
+      updateUserUI(user);
+      
+      // Hide auth screen and show app
+      hideAuthScreen();
+      
+      // Create or update user document in Firestore
+      try {
+        const userRef = db.collection('users').doc(user.uid);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) {
+          // Create new user document
+          await userRef.set({
+            email: user.email,
+            displayName: user.displayName || user.email.split('@')[0],
+            photoURL: user.photoURL || null,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            isAdmin: isAdmin,
+            lastMessageDate: null,
+            dailyMessageCount: 0
+          });
+        } else {
+          // Update existing user document
+          await userRef.update({
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+            isAdmin: isAdmin
+          });
+          
+          // Get message count data
+          if (userDoc.data().lastMessageDate) {
+            const lastDate = userDoc.data().lastMessageDate.toDate();
+            const today = new Date();
+            
+            // Reset counter if it's a new day
+            if (lastDate.getDate() !== today.getDate() || 
+                lastDate.getMonth() !== today.getMonth() || 
+                lastDate.getFullYear() !== today.getFullYear()) {
+              await userRef.update({
+                dailyMessageCount: 0,
+                lastMessageDate: null
+              });
+              dailyMessageCount = 0;
+              lastMessageDate = null;
+            } else {
+              dailyMessageCount = userDoc.data().dailyMessageCount || 0;
+              lastMessageDate = lastDate;
+            }
+          }
+        }
+        
+        // Fetch user messages
+        await fetchUserMessages();
+
+        // Fetch user notifications
+        await fetchUserNotifications();
+        
+        // Show welcome toast
+        showToast('success', '¡Bienvenido!', `Has iniciado sesión como ${user.email}`);
+        
+        // Load content
+        loadAllContent().then(() => {
+          // Hide spinner
+          hideSpinner();
+        });
+        
+      } catch (error) {
+        console.error('Error updating user document:', error);
+        hideSpinner();
+        showToast('error', 'Error', 'Ocurrió un error al actualizar tu perfil');
+      }
+    }
+
+    // Fetch user notifications
+    async function fetchUserNotifications() {
+      try {
+        if (!currentUser) return [];
+        
+        const notificationsSnapshot = await db.collection('messages')
+          .where('to', 'in', [currentUser.uid, 'all'])
+          .orderBy('createdAt', 'desc')
+          .get();
+        
+        userNotifications = [];
+        let unreadCount = 0;
+        
+        notificationsSnapshot.forEach(doc => {
+          const notification = {
+            id: doc.id,
+            ...doc.data(),
+            read: doc.data().readBy ? doc.data().readBy.includes(currentUser.uid) : false
+          };
+          
+          userNotifications.push(notification);
+          
+          // Count unread notifications
+          if (!notification.read) {
+            unreadCount++;
+          }
+        });
+        
+        unreadNotificationsCount = unreadCount;
+        updateNotificationBadge();
+        
+        return userNotifications;
+      } catch (error) {
+        console.error('Error fetching user notifications:', error);
+        return [];
+      }
+    }
+
+    // Update notification badge
+    function updateNotificationBadge() {
+      const notificationBadge = document.querySelector('.notification-badge');
+      
+      if (unreadNotificationsCount > 0) {
+        notificationBadge.textContent = unreadNotificationsCount;
+        notificationBadge.style.display = 'flex';
+      } else {
+        notificationBadge.style.display = 'none';
+      }
+    }
+
+    // Mark notifications as read
+    async function markNotificationsAsRead() {
+      try {
+        const batch = db.batch();
+        
+        // Get unread notifications
+        const unreadNotifications = userNotifications.filter(notification => !notification.read);
+        
+        // Update each notification
+        for (const notification of unreadNotifications) {
+          const notificationRef = db.collection('messages').doc(notification.id);
+          const notificationDoc = await notificationRef.get();
+          
+          if (notificationDoc.exists) {
+            const readBy = notificationDoc.data().readBy || [];
+            
+            if (!readBy.includes(currentUser.uid)) {
+              batch.update(notificationRef, {
+                readBy: [...readBy, currentUser.uid]
+              });
+            }
+          }
+        }
+        
+        // Commit batch
+        await batch.commit();
+        
+        // Update local state
+        unreadNotificationsCount = 0;
+        updateNotificationBadge();
+        
+        // Refresh notifications
+        await fetchUserNotifications();
+        
+      } catch (error) {
+        console.error('Error marking notifications as read:', error);
+      }
+    }
+
+    // Show notifications dropdown
+    function showNotificationsDropdown() {
+      // Create dropdown if it doesn't exist
+      let notificationsDropdown = document.getElementById('notifications-dropdown');
+      
+      if (!notificationsDropdown) {
+        notificationsDropdown = document.createElement('div');
+        notificationsDropdown.id = 'notifications-dropdown';
+        notificationsDropdown.className = 'user-dropdown-menu';
+        notificationsDropdown.style.width = '300px';
+        
+        // Add to DOM
+        document.querySelector('.user-notification').appendChild(notificationsDropdown);
+      }
+      
+      // Toggle dropdown
+      notificationsDropdown.classList.toggle('active');
+      
+      // If opening dropdown, mark as read and update content
+      if (notificationsDropdown.classList.contains('active')) {
+        // Update dropdown content
+        updateNotificationsDropdown();
+        
+        // Mark notifications as read
+        markNotificationsAsRead();
+      }
+    }
+
+    // Update notifications dropdown content
+    function updateNotificationsDropdown() {
+      const notificationsDropdown = document.getElementById('notifications-dropdown');
+      
+      if (!notificationsDropdown) return;
+      
+      if (userNotifications.length === 0) {
+        notificationsDropdown.innerHTML = `
+          <div style="padding: 1rem; text-align: center;">
+            <p>No tienes notificaciones</p>
+          </div>
+        `;
+        return;
+      }
+      
+      notificationsDropdown.innerHTML = `
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-name">Notificaciones</div>
+        </div>
+        <div class="user-dropdown-items" style="max-height: 300px; overflow-y: auto;">
+          ${userNotifications.slice(0, 5).map(notification => `
+            <div class="user-dropdown-item" style="display: block; white-space: normal;">
+              <div style="font-weight: 600; margin-bottom: 0.25rem;">${notification.fromName || 'Administrador'}</div>
+              <div style="font-size: 0.85rem;">${notification.text}</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                ${notification.createdAt ? new Date(notification.createdAt.toDate()).toLocaleString() : 'Fecha desconocida'}
+              </div>
+            </div>
+          `).join('')}
+          ${userNotifications.length > 5 ? `
+            <div class="user-dropdown-item" style="text-align: center; color: var(--secondary-color);">
+              Ver todas las notificaciones
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // Fetch user messages
+    async function fetchUserMessages() {
+      try {
+        const messagesSnapshot = await db.collection('userMessages')
+          .where('userId', '==', currentUser.uid)
+          .orderBy('createdAt', 'desc')
+          .get();
+        
+        userMessages = [];
+        messagesSnapshot.forEach(doc => {
+          userMessages.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+        
+        return userMessages;
+      } catch (error) {
+        console.error('Error fetching user messages:', error);
+        return [];
+      }
+    }
+
+    // Update user UI
+    function updateUserUI(user) {
+      // Update dropdown info
+      dropdownUserName.textContent = user.displayName || user.email.split('@')[0];
+      dropdownUserEmail.textContent = user.email;
+      
+      // Update avatar
+      if (user.photoURL) {
+        avatarImg.src = user.photoURL;
+        avatarImg.style.display = 'block';
+        avatarText.style.display = 'none';
+      } else {
+        const initials = (user.displayName || user.email.split('@')[0]).substring(0, 2);
+        avatarText.textContent = initials;
+        avatarImg.style.display = 'none';
+        avatarText.style.display = 'block';
+      }
+    }
+
+    // Show auth screen
+    function showAuthScreen() {
+      // Hide app and show auth container
+      appContainer.style.display = 'none';
+      authContainer.style.display = 'flex';
+      
+      // Show login form by default
+      showLoginForm();
+      
+      // Hide spinner
+      hideSpinner();
+    }
+
+    // Hide auth screen
+    function hideAuthScreen() {
+      // Hide auth container and show app
+      authContainer.style.display = 'none';
+      appContainer.style.display = 'grid';
+    }
+
+    // Show login form
+    function showLoginForm() {
+      // Update auth title and subtitle
+      authTitle.textContent = 'Iniciar sesión';
+      authSubtitle.textContent = 'Accede a tu cuenta para disfrutar de StreamFusion';
+      
+      // Create login form
+      authFormContainer.innerHTML = `
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email" class="form-label">Correo electrónico</label>
+            <input type="email" id="login-email" class="form-input" placeholder="tu@email.com" required>
+            <div class="form-error" id="login-email-error"></div>
+          </div>
+          <div class="form-group">
+            <label for="login-password" class="form-label">Contraseña</label>
+            <input type="password" id="login-password" class="form-input" placeholder="Tu contraseña" required>
+            <div class="form-error" id="login-password-error"></div>
+          </div>
+          <button type="submit" class="auth-btn" id="login-btn">Iniciar sesión</button>
+          <div class="form-error" id="login-form-error"></div>
+        </form>
+        <div class="auth-footer">
+          ¿No tienes una cuenta? <a class="auth-link" id="show-register-link">Regístrate</a>
+        </div>
+      `;
+      
+      // Add event listeners
+      document.getElementById('login-form').addEventListener('submit', handleLogin);
+      document.getElementById('show-register-link').addEventListener('click', showRegisterForm);
+    }
+
+    // Show register form
+    function showRegisterForm() {
+      // Update auth title and subtitle
+      authTitle.textContent = 'Crear cuenta';
+      authSubtitle.textContent = 'Regístrate para disfrutar de StreamFusion';
+      
+      // Create register form
+      authFormContainer.innerHTML = `
+        <form id="register-form">
+          <div class="form-group">
+            <label for="register-name" class="form-label">Nombre</label>
+            <input type="text" id="register-name" class="form-input" placeholder="Tu nombre" required>
+            <div class="form-error" id="register-name-error"></div>
+          </div>
+          <div class="form-group">
+            <label for="register-email" class="form-label">Correo electrónico</label>
+            <input type="email" id="register-email" class="form-input" placeholder="tu@email.com" required>
+            <div class="form-error" id="register-email-error"></div>
+          </div>
+          <div class="form-group">
+            <label for="register-password" class="form-label">Contraseña</label>
+            <input type="password" id="register-password" class="form-input" placeholder="Tu contraseña" required>
+            <div class="form-error" id="register-password-error"></div>
+          </div>
+          <div class="form-group">
+            <label for="register-confirm-password" class="form-label">Confirmar contraseña</label>
+            <input type="password" id="register-confirm-password" class="form-input" placeholder="Confirma tu contraseña" required>
+            <div class="form-error" id="register-confirm-password-error"></div>
+          </div>
+          <button type="submit" class="auth-btn" id="register-btn">Crear cuenta</button>
+          <div class="form-error" id="register-form-error"></div>
+        </form>
+        <div class="auth-footer">
+          ¿Ya tienes una cuenta? <a class="auth-link" id="show-login-link">Inicia sesión</a>
+        </div>
+      `;
+      
+      // Add event listeners
+      document.getElementById('register-form').addEventListener('submit', handleRegister);
+      document.getElementById('show-login-link').addEventListener('click', showLoginForm);
+    }
+
+    // Handle login
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      
+      // Reset errors
+      document.getElementById('login-email-error').textContent = '';
+      document.getElementById('login-password-error').textContent = '';
+      document.getElementById('login-form-error').textContent = '';
+      
+      // Validate form
+      let isValid = true;
+      
+      if (!email) {
+        document.getElementById('login-email-error').textContent = 'El correo electrónico es requerido';
+        isValid = false;
+      }
+      
+      if (!password) {
+        document.getElementById('login-password-error').textContent = 'La contraseña es requerida';
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      // Show spinner
+      showSpinner();
+      
+      try {
+        // Sign in with email and password
+        await auth.signInWithEmailAndPassword(email, password);
+        
+        // Auth state change will handle the rest
+      } catch (error) {
+        hideSpinner();
+        
+        // Handle specific errors
+        switch (error.code) {
+          case 'auth/user-not-found':
+            document.getElementById('login-email-error').textContent = 'No existe una cuenta con este correo electrónico';
+            break;
+          case 'auth/wrong-password':
+            document.getElementById('login-password-error').textContent = 'Contraseña incorrecta';
+            break;
+          case 'auth/invalid-email':
+            document.getElementById('login-email-error').textContent = 'Correo electrónico inválido';
+            break;
+          case 'auth/too-many-requests':
+            document.getElementById('login-form-error').textContent = 'Demasiados intentos fallidos. Intenta más tarde';
+            break;
+          default:
+            document.getElementById('login-form-error').textContent = `Error: ${error.message}`;
+            break;
+        }
+      }
+    }
+
+    // Handle register
+    async function handleRegister(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm-password').value;
+      
+      // Reset errors
+      document.getElementById('register-name-error').textContent = '';
+      document.getElementById('register-email-error').textContent = '';
+      document.getElementById('register-password-error').textContent = '';
+      document.getElementById('register-confirm-password-error').textContent = '';
+      document.getElementById('register-form-error').textContent = '';
+      
+      // Validate form
+      let isValid = true;
+      
+      if (!name) {
+        document.getElementById('register-name-error').textContent = 'El nombre es requerido';
+        isValid = false;
+      }
+      
+      if (!email) {
+        document.getElementById('register-email-error').textContent = 'El correo electrónico es requerido';
+        isValid = false;
+      }
+      
+      if (!password) {
+        document.getElementById('register-password-error').textContent = 'La contraseña es requerida';
+        isValid = false;
+      } else if (password.length < 6) {
+        document.getElementById('register-password-error').textContent = 'La contraseña debe tener al menos 6 caracteres';
+        isValid = false;
+      }
+      
+      if (password !== confirmPassword) {
+        document.getElementById('register-confirm-password-error').textContent = 'Las contraseñas no coinciden';
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      // Show spinner
+      showSpinner();
+      
+      try {
+        // Create user with email and password
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        
+        // Update user profile
+        await userCredential.user.updateProfile({
+          displayName: name
+        });
+        
+        // Auth state change will handle the rest
+      } catch (error) {
+        hideSpinner();
+        
+        // Handle specific errors
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            document.getElementById('register-email-error').textContent = 'Este correo electrónico ya está en uso';
+            break;
+          case 'auth/invalid-email':
+            document.getElementById('register-email-error').textContent = 'Correo electrónico inválido';
+            break;
+          case 'auth/weak-password':
+            document.getElementById('register-password-error').textContent = 'La contraseña es demasiado débil';
+            break;
+          default:
+            document.getElementById('register-form-error').textContent = `Error: ${error.message}`;
+            break;
+        }
+      }
+    }
+
+    // Initialize event listeners
+    function initEventListeners() {
+      // Mobile menu toggle
+      mobileMenuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+      });
+
+      // Close sidebar when clicking outside
+      document.addEventListener('click', (e) => {
+        // If sidebar is active and the click is outside the sidebar and not on the toggle button
+        if (sidebar.classList.contains('active') && 
+            !sidebar.contains(e.target) && 
+            !mobileMenuToggle.contains(e.target)) {
+          sidebar.classList.remove('active');
+        }
+      });
+
+      // Search functionality
+      searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+          handleSearch();
+        }
+      });
+
+      // Navigation links
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Remove active class from all links
+          navLinks.forEach(l => l.classList.remove('active'));
+          
+          // Add active class to clicked link
+          this.classList.add('active');
+          
+          // Get section from data attribute
+          const section = this.dataset.section;
+          
+          // Handle navigation
+          navigateToSection(section);
+          
+          // Close mobile sidebar
+          sidebar.classList.remove('active');
+        });
+      });
+
+      // Service selection
+      const serviceItems = document.querySelectorAll('.service-item');
+      serviceItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          handleServiceClick(e);
+          
+          // Close mobile sidebar
+          sidebar.classList.remove('active');
+        });
+      });
+
+      // Genre selection
+      const genreLinks = document.querySelectorAll('.nav-link[data-genre]');
+      genreLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Get genre ID and name
+          const genreId = this.dataset.genre;
+          const genreName = this.querySelector('span').textContent;
+          
+          // Handle genre click
+          handleGenreClick(genreId, genreName);
+          
+          // Close mobile sidebar
+          sidebar.classList.remove('active');
+        });
+      });
+
+      // User avatar click (toggle dropdown)
+      userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdownMenu.classList.toggle('active');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', () => {
+        userDropdownMenu.classList.remove('active');
+      });
+
+      // Profile link
+      profileLink.addEventListener('click', () => {
+        navigateToSection('profile');
+        userDropdownMenu.classList.remove('active');
+      });
+
+      // Logout link
+      logoutLink.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          // Auth state change will handle the rest
+        } catch (error) {
+          console.error('Error signing out:', error);
+          showToast('error', 'Error', 'No se pudo cerrar sesión');
+        }
+      });
+
+      // Notification bell click
+      document.querySelector('.user-notification').addEventListener('click', (e) => {
+        e.stopPropagation();
+        showNotificationsDropdown();
+      });
+
+      // Close notifications dropdown when clicking outside
+      document.addEventListener('click', () => {
+        const notificationsDropdown = document.getElementById('notifications-dropdown');
+        if (notificationsDropdown) {
+          notificationsDropdown.classList.remove('active');
+        }
+      });
+    }
+
+    // Navigate to section
+    function navigateToSection(section) {
+      currentSection = section;
+      
+      // Reset active service when changing sections
+      if (currentService && section !== currentService) {
+        const serviceItems = document.querySelectorAll('.service-item');
+        serviceItems.forEach(item => item.classList.remove('active'));
+        currentService = null;
+      }
+      
+      // Update main content based on section
+      switch (section) {
+        case 'home':
+          loadHomeContent();
+          break;
+        case 'movies':
+          loadMoviesContent();
+          break;
+        case 'series':
+          loadSeriesContent();
+          break;
+        case 'animes':
+          loadDoramasContent();
+          break;
+        case 'my-list':
+          loadMyListContent();
+          break;
+        case 'profile':
+          loadProfileContent();
+          break;
+        case 'admin':
+          loadAdminPanel();
+          break;
+        default:
+          loadHomeContent();
+          break;
+      }
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    // Load profile content
+    async function loadProfileContent() {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Fetch user data
+        const userRef = db.collection('users').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        const userData = userDoc.data();
+        
+        // Refresh user messages
+        await fetchUserMessages();
+        
+        // Create profile container
+        const profileContainer = document.createElement('div');
+        profileContainer.className = 'profile-container';
+        
+        // Create profile header
+        const profileHeader = document.createElement('div');
+        profileHeader.className = 'profile-header';
+        
+        // Create avatar
+        const profileAvatar = document.createElement('div');
+        profileAvatar.className = 'profile-avatar';
+        
+        if (userData.photoURL) {
+          profileAvatar.innerHTML = `<img src="${userData.photoURL}" alt="${userData.displayName || 'Usuario'}" />`;
+        } else {
+          const initials = (userData.displayName || userData.email.split('@')[0]).substring(0, 2);
+          profileAvatar.textContent = initials;
+        }
+        
+        // Create profile info
+        const profileInfo = document.createElement('div');
+        profileInfo.className = 'profile-info';
+        
+        profileInfo.innerHTML = `
+          <h2 class="profile-name">${userData.displayName || userData.email.split('@')[0]}</h2>
+          <p class="profile-email">${userData.email}</p>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <span class="profile-stat-value">${continueWatchingContentData.length}</span>
+              <span class="profile-stat-label">En mi lista</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-value">${userMessages.length}</span>
+              <span class="profile-stat-label">Mensajes enviados</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-value">${userData.createdAt ? new Date(userData.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
+              <span class="profile-stat-label">Fecha de registro</span>
+            </div>
+          </div>
+        `;
+        
+        // Add elements to profile header
+        profileHeader.appendChild(profileAvatar);
+        profileHeader.appendChild(profileInfo);
+        
+        // Create profile tabs
+        const profileTabs = document.createElement('div');
+        profileTabs.className = 'profile-tabs';
+        profileTabs.innerHTML = `
+          <div class="profile-tab active" data-tab="info">Información personal</div>
+          <div class="profile-tab" data-tab="messages">Mensajes al administrador</div>
+        `;
+        
+        // Create profile content
+        const profileContent = document.createElement('div');
+        profileContent.className = 'profile-content';
+        
+        // Add elements to profile container
+        profileContainer.appendChild(profileHeader);
+        profileContainer.appendChild(profileTabs);
+        profileContainer.appendChild(profileContent);
+        
+        // Add profile container to main content
+        mainContent.appendChild(profileContainer);
+        
+        // Show info tab by default
+        showProfileTab('info');
+        
+        // Add event listeners to tabs
+        const tabButtons = document.querySelectorAll('.profile-tab');
+        tabButtons.forEach(tab => {
+          tab.addEventListener('click', () => {
+            // Remove active class from all tabs
+            tabButtons.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            
+            // Show tab content
+            showProfileTab(tab.dataset.tab);
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading profile content:', error);
+        hideSpinner();
+        showToast('error', 'Error', 'No se pudo cargar el perfil');
+      }
+    }
+
+    // Show profile tab
+    async function showProfileTab(tab) {
+      const profileContent = document.querySelector('.profile-content');
+      
+      switch (tab) {
+        case 'info':
+          // Fetch user data
+          const userRef = db.collection('users').doc(currentUser.uid);
+          const userDoc = await userRef.get();
+          const userData = userDoc.data();
+          
+          // Create info content
+          profileContent.innerHTML = `
+            <div class="profile-section">
+              <h3 class="profile-section-title">Información personal</h3>
+              <form id="profile-form" class="profile-form">
+                <div class="form-group">
+                  <label for="profile-name" class="form-label">Nombre</label>
+                  <input type="text" id="profile-name" class="form-input" value="${userData.displayName || ''}" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                  <label for="profile-email" class="form-label">Correo electrónico</label>
+                  <input type="email" id="profile-email" class="form-input" value="${userData.email}" disabled>
+                </div>
+                <div class="form-group">
+                  <label for="profile-photo" class="form-label">URL de foto de perfil</label>
+                  <input type="url" id="profile-photo" class="form-input" value="${userData.photoURL || ''}" placeholder="https://ejemplo.com/tu-foto.jpg">
+                  <div class="form-error" id="profile-photo-error"></div>
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="auth-btn">Guardar cambios</button>
+                  <div class="form-success" id="profile-form-success"></div>
+                  <div class="form-error" id="profile-form-error"></div>
+                </div>
+              </form>
+            </div>
+            
+            <div class="profile-section">
+              <h3 class="profile-section-title">Cambiar contraseña</h3>
+              <form id="password-form" class="profile-form">
+                <div class="form-group">
+                  <label for="current-password" class="form-label">Contraseña actual</label>
+                  <input type="password" id="current-password" class="form-input" placeholder="Tu contraseña actual">
+                  <div class="form-error" id="current-password-error"></div>
+                </div>
+                <div class="form-group">
+                  <label for="new-password" class="form-label">Nueva contraseña</label>
+                  <input type="password" id="new-password" class="form-input" placeholder="Nueva contraseña">
+                  <div class="form-error" id="new-password-error"></div>
+                </div>
+                <div class="form-group">
+                  <label for="confirm-password" class="form-label">Confirmar nueva contraseña</label>
+                  <input type="password" id="confirm-password" class="form-input" placeholder="Confirmar nueva contraseña">
+                  <div class="form-error" id="confirm-password-error"></div>
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="auth-btn">Cambiar contraseña</button>
+                  <div class="form-success" id="password-form-success"></div>
+                  <div class="form-error" id="password-form-error"></div>
+                </div>
+              </form>
+            </div>
+          `;
+          
+          // Add event listeners
+          document.getElementById('profile-form').addEventListener('submit', updateProfile);
+          document.getElementById('password-form').addEventListener('submit', updatePassword);
+          
+          break;
+          
+        case 'messages':
+          // Fetch user data for message count
+          const userMsgRef = db.collection('users').doc(currentUser.uid);
+          const userMsgDoc = await userMsgRef.get();
+          const userMsgData = userMsgDoc.data();
+          
+          // Calculate remaining messages
+          const remainingMessages = 3 - (userMsgData.dailyMessageCount || 0);
+          
+          // Create messages content
+          profileContent.innerHTML = `
+            <div class="profile-section">
+              <div class="message-form">
+                <div class="message-form-header">
+                  <h3 class="message-form-title">Enviar mensaje al administrador</h3>
+                  <span class="message-counter">${remainingMessages} mensajes restantes hoy</span>
+                </div>
+                <form id="message-form">
+                  <div class="form-group">
+                    <label for="message-text" class="form-label">Mensaje</label>
+                    <textarea id="message-text" class="form-input" placeholder="Escribe tu mensaje aquí..." rows="4" ${remainingMessages <= 0 ? 'disabled' : ''}></textarea>
+                    <div class="form-error" id="message-text-error"></div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="auth-btn" ${remainingMessages <= 0 ? 'disabled' : ''}>Enviar mensaje</button>
+                    <div class="form-success" id="message-form-success"></div>
+                    <div class="form-error" id="message-form-error"></div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+            <div class="profile-section">
+              <h3 class="profile-section-title">Historial de mensajes</h3>
+              <div class="message-list">
+                ${userMessages.length > 0 ? userMessages.map(message => `
+                  <div class="message-item">
+                    <div class="message-item-header">
+                      <span class="message-date">${message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'Fecha desconocida'}</span>
+                    </div>
+                    <p class="message-text">${message.text}</p>
+                    <div class="message-status ${message.read ? 'read' : ''}">
+                      ${message.read ? 'Leído' : 'No leído'}
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div class="empty-state">
+                    <i class="fas fa-envelope empty-icon"></i>
+                    <h3 class="empty-title">No hay mensajes</h3>
+                    <p class="empty-text">Aún no has enviado mensajes al administrador.</p>
+                  </div>
+                `}
+              </div>
+            </div>
+          `;
+          
+          // Add event listener to message form
+          if (remainingMessages > 0) {
+            document.getElementById('message-form').addEventListener('submit', sendUserMessage);
+          }
+          
+          break;
+      }
+    }
+
+    // Update profile
+    async function updateProfile(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const name = document.getElementById('profile-name').value;
+      const photoURL = document.getElementById('profile-photo').value;
+      
+      // Reset errors and success messages
+      document.getElementById('profile-photo-error').textContent = '';
+      document.getElementById('profile-form-success').textContent = '';
+      document.getElementById('profile-form-error').textContent = '';
+      
+      // Validate form
+      let isValid = true;
+      
+      if (photoURL && !isValidURL(photoURL)) {
+        document.getElementById('profile-photo-error').textContent = 'URL de foto inválida';
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Update user profile in Firebase Auth
+        await currentUser.updateProfile({
+          displayName: name,
+          photoURL: photoURL || null
+        });
+        
+        // Update user document in Firestore
+        await db.collection('users').doc(currentUser.uid).update({
+          displayName: name,
+          photoURL: photoURL || null
+        });
+        
+        // Update UI
+        updateUserUI(currentUser);
+        
+        // Show success message
+        document.getElementById('profile-form-success').textContent = 'Perfil actualizado correctamente';
+        
+        // Hide spinner
+        hideSpinner();
+        
+        // Show toast
+        showToast('success', 'Perfil actualizado', 'Tu perfil ha sido actualizado correctamente');
+        
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        hideSpinner();
+        document.getElementById('profile-form-error').textContent = `Error: ${error.message}`;
+      }
+    }
+
+    // Update password
+    async function updatePassword(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      // Reset errors and success messages
+      document.getElementById('current-password-error').textContent = '';
+      document.getElementById('new-password-error').textContent = '';
+      document.getElementById('confirm-password-error').textContent = '';
+      document.getElementById('password-form-success').textContent = '';
+      document.getElementById('password-form-error').textContent = '';
+      
+      // Validate form
+      let isValid = true;
+      
+      if (!currentPassword) {
+        document.getElementById('current-password-error').textContent = 'La contraseña actual es requerida';
+        isValid = false;
+      }
+      
+      if (!newPassword) {
+        document.getElementById('new-password-error').textContent = 'La nueva contraseña es requerida';
+        isValid = false;
+      } else if (newPassword.length < 6) {
+        document.getElementById('new-password-error').textContent = 'La contraseña debe tener al menos 6 caracteres';
+        isValid = false;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        document.getElementById('confirm-password-error').textContent = 'Las contraseñas no coinciden';
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Reauthenticate user
+        const credential = firebase.auth.EmailAuthProvider.credential(
+          currentUser.email,
+          currentPassword
+        );
+        
+        await currentUser.reauthenticateWithCredential(credential);
+        
+        // Update password
+        await currentUser.updatePassword(newPassword);
+        
+        // Clear form
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+        
+        // Show success message
+        document.getElementById('password-form-success').textContent = 'Contraseña actualizada correctamente';
+        
+        // Hide spinner
+        hideSpinner();
+        
+        // Show toast
+        showToast('success', 'Contraseña actualizada', 'Tu contraseña ha sido actualizada correctamente');
+        
+      } catch (error) {
+        console.error('Error updating password:', error);
+        hideSpinner();
+        
+        // Handle specific errors
+        if (error.code === 'auth/wrong-password') {
+          document.getElementById('current-password-error').textContent = 'Contraseña actual incorrecta';
+        } else {
+          document.getElementById('password-form-error').textContent = `Error: ${error.message}`;
+        }
+      }
+    }
+
+    // Send user message
+    async function sendUserMessage(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const messageText = document.getElementById('message-text').value.trim();
+      
+      // Reset errors and success messages
+      document.getElementById('message-text-error').textContent = '';
+      document.getElementById('message-form-success').textContent = '';
+      document.getElementById('message-form-error').textContent = '';
+      
+      // Validate form
+      let isValid = true;
+      
+      if (!messageText) {
+        document.getElementById('message-text-error').textContent = 'El mensaje no puede estar vacío';
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return;
+      }
+      
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Check daily message limit
+        const userRef = db.collection('users').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        const userData = userDoc.data();
+        
+        let messageCount = userData.dailyMessageCount || 0;
+        const lastDate = userData.lastMessageDate ? userData.lastMessageDate.toDate() : null;
+        const today = new Date();
+        
+        // Reset counter if it's a new day
+        if (!lastDate || 
+            lastDate.getDate() !== today.getDate() || 
+            lastDate.getMonth() !== today.getMonth() || 
+            lastDate.getFullYear() !== today.getFullYear()) {
+          messageCount = 0;
+        }
+        
+        // Check if user has reached the daily limit
+        if (messageCount >= 3) {
+          document.getElementById('message-form-error').textContent = 'Has alcanzado el límite de 3 mensajes por día';
+          hideSpinner();
+          return;
+        }
+        
+        // Create message in Firestore
+        await db.collection('userMessages').add({
+          userId: currentUser.uid,
+          userName: currentUser.displayName || currentUser.email.split('@')[0],
+          userEmail: currentUser.email,
+          text: messageText,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          read: false
+        }).catch(error => {
+          console.error("Error writing document: ", error);
+          throw error;
+        });
+        
+        // Update user's message count
+        await userRef.update({
+          dailyMessageCount: messageCount + 1,
+          lastMessageDate: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Update local variables
+        dailyMessageCount = messageCount + 1;
+        lastMessageDate = new Date();
+        
+        // Clear form
+        document.getElementById('message-text').value = '';
+        
+        // Show success message
+        document.getElementById('message-form-success').textContent = 'Mensaje enviado correctamente';
+        
+        // Refresh user messages
+        await fetchUserMessages();
+        
+        // Refresh messages tab
+        showProfileTab('messages');
+        
+        // Hide spinner
+        hideSpinner();
+        
+        // Show toast
+        showToast('success', 'Mensaje enviado', 'Tu mensaje ha sido enviado al administrador');
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        hideSpinner();
+        document.getElementById('message-form-error').textContent = `Error: ${error.message}`;
+      }
+    }
+
+    // Validate URL
+    function isValidURL(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    // Load admin panel
+    async function loadAdminPanel() {
+      if (!isAdmin) {
+        showToast('error', 'Acceso denegado', 'No tienes permisos para acceder al panel de administración');
+        navigateToSection('home');
+        return;
+      }
+      
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create admin panel
+        const adminPanel = document.createElement('div');
+        adminPanel.className = 'admin-panel';
+        
+        // Create admin header
+        const adminHeader = document.createElement('div');
+        adminHeader.className = 'admin-header';
+        adminHeader.innerHTML = `
+          <h2 class="admin-title">Panel de Administración</h2>
+        `;
+        
+        // Create admin tabs
+        const adminTabs = document.createElement('div');
+        adminTabs.className = 'admin-tabs';
+        adminTabs.innerHTML = `
+          <div class="admin-tab active" data-tab="users">Usuarios</div>
+          <div class="admin-tab" data-tab="messages">Mensajes</div>
+          <div class="admin-tab" data-tab="user-messages">Mensajes de usuarios</div>
+          <div class="admin-tab" data-tab="stats">Estadísticas</div>
+        `;
+        
+        // Create admin content
+        const adminContent = document.createElement('div');
+        adminContent.className = 'admin-content';
+        
+        // Add elements to admin panel
+        adminPanel.appendChild(adminHeader);
+        adminPanel.appendChild(adminTabs);
+        adminPanel.appendChild(adminContent);
+        
+        // Add admin panel to main content
+        mainContent.appendChild(adminPanel);
+        
+        // Fetch users
+        await fetchUsers();
+        
+        // Fetch all user messages
+        await fetchAllUserMessages();
+        
+        // Show users tab by default
+        showAdminTab('users');
+        
+        // Add event listeners to tabs
+        const tabButtons = document.querySelectorAll('.admin-tab');
+        tabButtons.forEach(tab => {
+          tab.addEventListener('click', () => {
+            // Remove active class from all tabs
+            tabButtons.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            
+            // Show tab content
+            showAdminTab(tab.dataset.tab);
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading admin panel:', error);
+        hideSpinner();
+        showToast('error', 'Error', 'No se pudo cargar el panel de administración');
+      }
+    }
+
+    // Fetch all user messages
+    async function fetchAllUserMessages() {
+      try {
+        const messagesSnapshot = await db.collection('userMessages')
+          .orderBy('createdAt', 'desc')
+          .get();
+        
+        allUserMessages = [];
+        messagesSnapshot.forEach(doc => {
+          allUserMessages.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+        
+        return allUserMessages;
+      } catch (error) {
+        console.error('Error fetching user messages:', error);
+        return [];
+      }
+    }
+
+    // Fetch users
+    async function fetchUsers() {
+      try {
+        const usersSnapshot = await db.collection('users').get();
+        users = [];
+        
+        usersSnapshot.forEach(doc => {
+          users.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+        
+        return users;
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        showToast('error', 'Error', 'No se pudieron cargar los usuarios');
+        return [];
+      }
+    }
+
+    // Fetch messages
+    async function fetchMessages() {
+      try {
+        const messagesSnapshot = await db.collection('messages').orderBy('createdAt', 'desc').get();
+        messages = [];
+        
+        messagesSnapshot.forEach(doc => {
+          messages.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+        
+        return messages;
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        showToast('error', 'Error', 'No se pudieron cargar los mensajes');
+        return [];
+      }
+    }
+
+    // Show admin tab
+    async function showAdminTab(tab) {
+      const adminContent = document.querySelector('.admin-content');
+      
+      switch (tab) {
+        
+        case 'users':
+          // Refresh users data
+          await fetchUsers();
+          
+          // Create users table with search functionality
+          adminContent.innerHTML = `
+            <div style="margin-bottom: 1.5rem;">
+              <div class="search-container" style="max-width: 100%;">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="admin-user-search" class="search-input" placeholder="Buscar usuarios por nombre o email...">
+              </div>
+            </div>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Fecha de registro</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                ${users.map(user => `
+                  <tr>
+                    <td>${user.displayName || user.email.split('@')[0]}</td>
+                    <td>${user.email}</td>
+                    <td>${user.isAdmin ? 'Administrador' : 'Usuario'}</td>
+                    <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleString() : new Date().toLocaleString()}</td>
+                    <td>
+                      <button class="admin-action-btn edit" data-id="${user.id}">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="admin-action-btn delete" data-id="${user.id}">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+          
+          // Add event listener for search input
+          const userSearchInput = document.getElementById('admin-user-search');
+          userSearchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            filterUsers(searchTerm);
+          });
+          
+          // Add event listeners to action buttons
+          const editButtons = document.querySelectorAll('.admin-action-btn.edit');
+          const deleteButtons = document.querySelectorAll('.admin-action-btn.delete');
+          
+          editButtons.forEach(button => {
+            button.addEventListener('click', () => {
+              const userId = button.dataset.id;
+              editUser(userId);
+            });
+          });
+          
+          deleteButtons.forEach(button => {
+            button.addEventListener('click', () => {
+              const userId = button.dataset.id;
+              deleteUser(userId);
+            });
+          });
+          
+          break;
+          
+        case 'messages':
+          // Fetch messages
+          await fetchMessages();
+          
+          // Create messages UI
+          adminContent.innerHTML = `
+            <div class="admin-message-form">
+              <h3>Enviar mensaje a usuarios</h3>
+              <textarea id="message-text" placeholder="Escribe tu mensaje aquí..."></textarea>
+              <div>
+                <label>
+                  <input type="radio" name="message-to" value="all" checked> Todos los usuarios
+                </label>
+                <label>
+                  <input type="radio" name="message-to" value="specific"> Usuario específico
+                </label>
+              </div>
+              <div id="specific-user-container" style="display: none; margin-top: 1rem;">
+                <div class="search-container" style="max-width: 100%; margin-bottom: 1rem;">
+                  <i class="fas fa-search search-icon"></i>
+                  <input type="text" id="admin-message-user-search" class="search-input" placeholder="Buscar usuario por nombre o email...">
+                </div>
+                <div id="user-search-results" style="max-height: 200px; overflow-y: auto; margin-bottom: 1rem;">
+                  <select id="specific-user" class="form-input" style="width: 100%;">
+                    ${users.map(user => `
+                      <option value="${user.id}">${user.displayName || user.email}</option>
+                    `).join('')}
+                  </select>
+                </div>
+              </div>
+              <button class="auth-btn" id="send-message-btn" style="margin-top: 1rem;">Enviar mensaje</button>
+            </div>
+            
+            <h3 style="margin-top: 2rem;">Mensajes enviados</h3>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Mensaje</th>
+                  <th>Destinatario</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${messages.map(message => `
+                  <tr>
+                    <td>${message.text}</td>
+                    <td>${message.to === 'all' ? 'Todos los usuarios' : (message.toName || message.to)}</td>
+                    <td>${message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'N/A'}</td>
+                    <td>
+                      <button class="admin-action-btn delete" data-id="${message.id}">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+          
+          // Add event listeners
+          document.querySelectorAll('input[name="message-to"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+              const specificUserContainer = document.getElementById('specific-user-container');
+              specificUserContainer.style.display = radio.value === 'specific' ? 'block' : 'none';
+            });
+          });
+
+          // Add event listener for user search input
+          const userMessageSearchInput = document.getElementById('admin-message-user-search');
+          userMessageSearchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            filterMessageUsers(searchTerm);
+          });
+          
+          document.getElementById('send-message-btn').addEventListener('click', sendMessage);
+          
+          // Add event listeners to delete buttons
+          document.querySelectorAll('.admin-action-btn.delete').forEach(button => {
+            button.addEventListener('click', () => {
+              const messageId = button.dataset.id;
+              deleteMessage(messageId);
+            });
+          });
+          
+          break;
+          
+        case 'user-messages':
+          // Fetch all user messages
+          await fetchAllUserMessages();
+          
+          // Create user messages UI
+          adminContent.innerHTML = `
+            <h3 style="margin-bottom: 1.5rem;">Mensajes de usuarios</h3>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Mensaje</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${allUserMessages.length > 0 ? allUserMessages.map(message => `
+                  <tr>
+                    <td>${message.userName || 'N/A'}</td>
+                    <td>${message.userEmail || 'N/A'}</td>
+                    <td>${message.text}</td>
+                    <td>${message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'N/A'}</td>
+                    <td>${message.read ? '<span style="color: var(--success-color);">Leído</span>' : '<span style="color: var(--error-color);">No leído</span>'}</td>
+                    <td>
+                      ${!message.read ? `
+                        <button class="admin-action-btn edit" data-id="${message.id}" title="Marcar como leído">
+                          <i class="fas fa-check"></i>
+                        </button>
+                      ` : ''}
+                      <button class="admin-action-btn delete" data-id="${message.id}" title="Eliminar mensaje">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `).join('') : `
+                  <tr>
+                    <td colspan="6" style="text-align: center;">No hay mensajes de usuarios</td>
+                  </tr>
+                `}
+              </tbody>
+            </table>
+          `;
+          
+          // Add event listeners to action buttons
+          document.querySelectorAll('.admin-action-btn.edit').forEach(button => {
+            button.addEventListener('click', () => {
+              const messageId = button.dataset.id;
+              markMessageAsRead(messageId);
+            });
+          });
+          
+          document.querySelectorAll('.admin-action-btn.delete').forEach(button => {
+            button.addEventListener('click', () => {
+              const messageId = button.dataset.id;
+              deleteUserMessage(messageId);
+            });
+          });
+          
+          break;
+          
+        case 'stats':
+          // Create stats UI
+          adminContent.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+              <div style="background-color: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: var(--border-radius);">
+                <h3 style="margin-bottom: 0.5rem;">Total de usuarios</h3>
+                <p style="font-size: 2rem; font-weight: 700;">${users.length}</p>
+              </div>
+              <div style="background-color: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: var(--border-radius);">
+                <h3 style="margin-bottom: 0.5rem;">Administradores</h3>
+                <p style="font-size: 2rem; font-weight: 700;">${users.filter(user => user.isAdmin).length}</p>
+              </div>
+              <div style="background-color: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: var(--border-radius);">
+                <h3 style="margin-bottom: 0.5rem;">Mensajes enviados</h3>
+                <p style="font-size: 2rem; font-weight: 700;">${messages.length}</p>
+              </div>
+              <div style="background-color: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: var(--border-radius);">
+                <h3 style="margin-bottom: 0.5rem;">Mensajes de usuarios</h3>
+                <p style="font-size: 2rem; font-weight: 700;">${allUserMessages ? allUserMessages.length : 0}</p>
+              </div>
+            </div>
+            
+            <h3 style="margin-top: 2rem;">Usuarios recientes</h3>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Fecha de registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${users
+                  .sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                    return dateB - dateA;
+                  })
+                  .slice(0, 5)
+                  .map(user => `
+                    <tr>
+                      <td>${user.displayName || 'N/A'}</td>
+                      <td>${user.email}</td>
+                      <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleString() : 'N/A'}</td>
+                    </tr>
+                  `).join('')}
+              </tbody>
+            </table>
+          `;
+          break;
+      }
+    }
+
+    // Add a function to filter users based on search term
+    function filterUsers(searchTerm) {
+      const usersTableBody = document.getElementById('users-table-body');
+      
+      if (!searchTerm) {
+        // If search term is empty, show all users
+        usersTableBody.innerHTML = users.map(user => `
+          <tr>
+            <td>${user.displayName || user.email.split('@')[0]}</td>
+            <td>${user.email}</td>
+            <td>${user.isAdmin ? 'Administrador' : 'Usuario'}</td>
+            <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleString() : new Date().toLocaleString()}</td>
+            <td>
+              <button class="admin-action-btn edit" data-id="${user.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="admin-action-btn delete" data-id="${user.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        // Filter users based on search term
+        const filteredUsers = users.filter(user => {
+          const userName = (user.displayName || user.email.split('@')[0]).toLowerCase();
+          const userEmail = user.email.toLowerCase();
+          
+          return userName.includes(searchTerm) || userEmail.includes(searchTerm);
+        });
+        
+        // Update table with filtered users
+        if (filteredUsers.length === 0) {
+          usersTableBody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-search" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                <p>No se encontraron usuarios que coincidan con "${searchTerm}"</p>
+              </td>
+            </tr>
+          `;
+        } else {
+          usersTableBody.innerHTML = filteredUsers.map(user => `
+            <tr>
+              <td>${user.displayName || user.email.split('@')[0]}</td>
+              <td>${user.email}</td>
+              <td>${user.isAdmin ? 'Administrador' : 'Usuario'}</td>
+              <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleString() : new Date().toLocaleString()}</td>
+              <td>
+                <button class="admin-action-btn edit" data-id="${user.id}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="admin-action-btn delete" data-id="${user.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+      
+      // Re-add event listeners to action buttons
+      const editButtons = document.querySelectorAll('.admin-action-btn.edit');
+      const deleteButtons = document.querySelectorAll('.admin-action-btn.delete');
+      
+      editButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const userId = button.dataset.id;
+          editUser(userId);
+        });
+      });
+      
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const userId = button.dataset.id;
+          deleteUser(userId);
+        });
+      });
+    }
+
+    // Mark message as read
+    async function markMessageAsRead(messageId) {
+      try {
+        // Update message in Firestore
+        await db.collection('userMessages').doc(messageId).update({
+          read: true
+        });
+        
+        // Show success toast
+        showToast('success', 'Mensaje actualizado', 'El mensaje ha sido marcado como leído');
+        
+        // Refresh user messages and update UI
+        await fetchAllUserMessages();
+        showAdminTab('user-messages');
+      } catch (error) {
+        console.error('Error marking message as read:', error);
+        showToast('error', 'Error', 'No se pudo actualizar el mensaje');
+      }
+    }
+
+    // Delete user message
+    async function deleteUserMessage(messageId) {
+      try {
+        // Delete message from Firestore
+        await db.collection('userMessages').doc(messageId).delete();
+        
+        // Show success toast
+        showToast('success', 'Mensaje eliminado', 'El mensaje ha sido eliminado correctamente');
+        
+        // Refresh user messages and update UI
+        await fetchAllUserMessages();
+        showAdminTab('user-messages');
+      } catch (error) {
+        console.error('Error deleting user message:', error);
+        showToast('error', 'Error', 'No se pudo eliminar el mensaje');
+      }
+    }
+
+    // Edit user
+    function editUser(userId) {
+      const user = users.find(u => u.id === userId);
+      
+      if (!user) {
+        showToast('error', 'Error', 'Usuario no encontrado');
+        return;
+      }
+      
+      // Create modal
+      const modalOverlay = document.createElement('div');
+      modalOverlay.className = 'modal-overlay';
+      
+      modalOverlay.innerHTML = `
+        <div class="modal-container" style="max-width: 500px;">
+          <div class="modal-content">
+            <button class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title" style="margin-bottom: 1.5rem;">Editar Usuario</h2>
+            <form id="edit-user-form" class="admin-form">
+              <div class="form-group">
+                <label for="edit-name" class="form-label">Nombre</label>
+                <input type="text" id="edit-name" class="form-input" value="${user.displayName || ''}" placeholder="Nombre">
+              </div>
+              <div class="form-group">
+                <label for="edit-email" class="form-label">Email</label>
+                <input type="email" id="edit-email" class="form-input" value="${user.email}" placeholder="Email" disabled>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Rol</label>
+                <div>
+                  <label>
+                    <input type="radio" name="edit-role" value="user" ${!user.isAdmin ? 'checked' : ''}> Usuario
+                  </label>
+                  <label style="margin-left: 1rem;">
+                    <input type="radio" name="edit-role" value="admin" ${user.isAdmin ? 'checked' : ''}> Administrador
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="auth-btn">Guardar cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      // Add modal to document
+      document.body.appendChild(modalOverlay);
+      
+      // Add event listeners
+      modalOverlay.querySelector('.modal-close').addEventListener('click', () => {
+        modalOverlay.remove();
+      });
+      
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          modalOverlay.remove();
+        }
+      });
+      
+      document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get form values
+        const name = document.getElementById('edit-name').value;
+        const isAdmin = document.querySelector('input[name="edit-role"]:checked').value === 'admin';
+        
+        try {
+          // Update user in Firestore
+          await db.collection('users').doc(userId).update({
+            displayName: name,
+            isAdmin: isAdmin
+          });
+          
+          // Show success toast
+          showToast('success', 'Usuario actualizado', 'Los cambios se han guardado correctamente');
+          
+          // Refresh users and update UI
+          await fetchUsers();
+          showAdminTab('users');
+          
+          // Close modal
+          modalOverlay.remove();
+        } catch (error) {
+          console.error('Error updating user:', error);
+          showToast('error', 'Error', 'No se pudo actualizar el usuario');
+        }
+      });
+    }
+
+    // Delete user
+    function deleteUser(userId) {
+      const user = users.find(u => u.id === userId);
+      
+      if (!user) {
+        showToast('error', 'Error', 'Usuario no encontrado');
+        return;
+      }
+      
+      // Create confirmation modal
+      const modalOverlay = document.createElement('div');
+      modalOverlay.className = 'modal-overlay';
+      
+      modalOverlay.innerHTML = `
+        <div class="modal-container" style="max-width: 400px;">
+          <div class="modal-content">
+            <button class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title" style="margin-bottom: 1rem;">Confirmar eliminación</h2>
+            <p style="margin-bottom: 1.5rem;">¿Estás seguro de que deseas eliminar al usuario <strong>${user.email}</strong>?</p>
+            <div style="display: flex; gap: 1rem;">
+              <button class="auth-btn" id="confirm-delete-btn" style="background-color: var(--error-color);">Eliminar</button>
+              <button class="auth-btn" id="cancel-delete-btn" style="background-color: rgba(255, 255, 255, 0.2);">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add modal to document
+      document.body.appendChild(modalOverlay);
+      
+      // Add event listeners
+      modalOverlay.querySelector('.modal-close').addEventListener('click', () => {
+        modalOverlay.remove();
+      });
+      
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          modalOverlay.remove();
+        }
+      });
+      
+      document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+        modalOverlay.remove();
+      });
+      
+      document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+        try {
+          // Delete user from Firestore
+          await db.collection('users').doc(userId).delete();
+          
+          // Show success toast
+          showToast('success', 'Usuario eliminado', 'El usuario ha sido eliminado correctamente');
+          
+          // Refresh users and update UI
+          await fetchUsers();
+          showAdminTab('users');
+          
+          // Close modal
+          modalOverlay.remove();
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          showToast('error', 'Error', 'No se pudo eliminar el usuario');
+        }
+      });
+    }
+
+    // Send message
+    async function sendMessage() {
+      const messageText = document.getElementById('message-text').value.trim();
+      const messageTo = document.querySelector('input[name="message-to"]:checked').value;
+      
+      if (!messageText) {
+        showToast('error', 'Error', 'El mensaje no puede estar vacío');
+        return;
+      }
+      
+      try {
+        // Show spinner
+        showSpinner();
+        
+        let toUserId = 'all';
+        let toUserName = 'Todos los usuarios';
+        
+        if (messageTo === 'specific') {
+          const specificUserSelect = document.getElementById('specific-user');
+          if (specificUserSelect) {
+            toUserId = specificUserSelect.value;
+            const toUser = users.find(u => u.id === toUserId);
+            toUserName = toUser ? (toUser.displayName || toUser.email) : 'Usuario';
+          }
+        }
+        
+        // Create message in Firestore
+        await db.collection('messages').add({
+          text: messageText,
+          from: currentUser.uid,
+          fromName: currentUser.displayName || currentUser.email,
+          to: toUserId,
+          toName: toUserName,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(error => {
+          console.error("Error writing document: ", error);
+          throw error;
+        });
+        
+        // Show success toast
+        showToast('success', 'Mensaje enviado', 'El mensaje ha sido enviado correctamente');
+        
+        // Clear form
+        document.getElementById('message-text').value = '';
+        
+        // Refresh messages and update UI
+        await fetchMessages();
+        showAdminTab('messages');
+        
+        // Hide spinner
+        hideSpinner();
+      } catch (error) {
+        console.error('Error sending message:', error);
+        hideSpinner();
+        showToast('error', 'Error', 'No se pudo enviar el mensaje');
+      }
+    }
+
+    // Filter users for message recipient selection
+    function filterMessageUsers(searchTerm) {
+      const userSearchResults = document.getElementById('user-search-results');
+      
+      if (!searchTerm) {
+        // If search term is empty, show all users in a select element
+        userSearchResults.innerHTML = `
+          <select id="specific-user" class="form-input" style="width: 100%;">
+            ${users.map(user => `
+              <option value="${user.id}">${user.displayName || user.email}</option>
+            `).join('')}
+          </select>
+        `;
+        return;
+      }
+      
+      // Filter users based on search term
+      const filteredUsers = users.filter(user => {
+        const userName = (user.displayName || user.email.split('@')[0]).toLowerCase();
+        const userEmail = user.email.toLowerCase();
+        
+        return userName.includes(searchTerm) || userEmail.includes(searchTerm);
+      });
+      
+      // Update display with filtered users
+      if (filteredUsers.length === 0) {
+        userSearchResults.innerHTML = `
+          <div style="text-align: center; padding: 1rem; color: var(--text-secondary);">
+            <i class="fas fa-search" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+            <p>No se encontraron usuarios que coincidan con "${searchTerm}"</p>
+          </div>
+        `;
+      } else {
+        userSearchResults.innerHTML = `
+          <select id="specific-user" class="form-input" style="width: 100%;">
+            ${filteredUsers.map(user => `
+              <option value="${user.id}">${user.displayName || user.email}</option>
+            `).join('')}
+          </select>
+        `;
+      }
+    }
+
+    // Delete message
+    async function deleteMessage(messageId) {
+      try {
+        // Delete message from Firestore
+        await db.collection('messages').doc(messageId).delete();
+        
+        // Show success toast
+        showToast('success', 'Mensaje eliminado', 'El mensaje ha sido eliminado correctamente');
+        
+        // Refresh messages and update UI
+        await fetchMessages();
+        showAdminTab('messages');
+      } catch (error) {
+        console.error('Error deleting message:', error);
+        showToast('error', 'Error', 'No se pudo eliminar el mensaje');
+      }
+    }
+
+    // Load all content
+    async function loadAllContent() {
+      try {
+        // Generate featured content
+        featuredContent = await generateFeaturedContent();
+        
+        // Load home content
+        await loadHomeContent();
+        
+      } catch (error) {
+        console.error('Error loading content:', error);
+      }
+    }
+
+    // Load home content
+    async function loadHomeContent() {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Add featured content
+        const featuredElement = createFeaturedContent(featuredContent[0]);
+        mainContent.appendChild(featuredElement);
+        
+        // Load continue watching
+        continueWatchingContentData = loadContinuarViendo();
+        
+        // Create continue watching section
+        const continueWatchingSection = document.createElement('section');
+        continueWatchingSection.id = 'continue-watching-section';
+        continueWatchingSection.innerHTML = `
+          <div class="section-header">
+            <h2 class="section-title">Continuar viendo</h2>
+          </div>
+          <div id="continue-watching-carousel" class="carousel-container">
+            <div class="carousel-content" id="continue-watching-content">
+              <!-- Content will be dynamically generated -->
+            </div>
+            <button class="carousel-nav prev" id="continue-watching-prev">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-nav next" id="continue-watching-next">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        `;
+        
+        if (continueWatchingContentData.length > 0) {
+          mainContent.appendChild(continueWatchingSection);
+          
+          // Get carousel elements
+          const continueWatchingContent = document.getElementById('continue-watching-content');
+          const continueWatchingPrev = document.getElementById('continue-watching-prev');
+          const continueWatchingNext = document.getElementById('continue-watching-next');
+          
+          // Populate carousel
+          continueWatchingContentData.forEach(item => {
+            const carouselItem = document.createElement('div');
+            carouselItem.className = 'carousel-item';
+            carouselItem.appendChild(createContentCard(item, true));
+            continueWatchingContent.appendChild(carouselItem);
+          });
+          
+          // Add event listeners for carousel navigation
+          continueWatchingPrev.addEventListener('click', () => {
+            scrollCarousel(continueWatchingContent, -300);
+          });
+          
+          continueWatchingNext.addEventListener('click', () => {
+            scrollCarousel(continueWatchingContent, 300);
+          });
+        }
+        
+        // Fetch trending content
+        const allMovies = await fetchContentByIds(shuffleArray(contentIds.inicioMovieIds), 'movie');
+        const allSeries = await fetchContentByIds(shuffleArray(contentIds.inicioSeriesIds), 'tv');
+        
+        // Store trending content data
+        trendingMoviesData = allMovies.slice(0, 12);
+        trendingSeriesData = allSeries.slice(0, 12);
+        trendingContentData = shuffleArray([...trendingMoviesData, ...trendingSeriesData]);
+        
+        // Create trending section
+        const trendingSection = document.createElement('section');
+        trendingSection.innerHTML = `
+          <div class="section-header">
+            <h2 class="section-title">Tendencias</h2>
+            <div class="section-actions">
+              <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-fire"></i> Ver todo
+              </button>
+              <button class="filter-btn" data-filter="movie">
+                <i class="fas fa-film"></i> Películas
+              </button>
+              <button class="filter-btn" data-filter="tv">
+                <i class="fas fa-tv"></i> Series
+              </button>
+            </div>
+          </div>
+          <div id="trending-carousel" class="carousel-container">
+            <div class="carousel-content" id="trending-content">
+              <!-- Content will be dynamically generated -->
+            </div>
+            <button class="carousel-nav prev" id="trending-prev">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-nav next" id="trending-next">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        `;
+        
+        mainContent.appendChild(trendingSection);
+        
+        // Get carousel elements
+        const trendingContent = document.getElementById('trending-content');
+        const trendingPrev = document.getElementById('trending-prev');
+        const trendingNext = document.getElementById('trending-next');
+        
+        // Populate carousel with all trending content
+        trendingContentData.forEach(item => {
+          const carouselItem = document.createElement('div');
+          carouselItem.className = 'carousel-item';
+          carouselItem.appendChild(createContentCard(item));
+          trendingContent.appendChild(carouselItem);
+        });
+        
+        // Add event listeners for carousel navigation
+        trendingPrev.addEventListener('click', () => {
+          scrollCarousel(trendingContent, -300);
+        });
+        
+        trendingNext.addEventListener('click', () => {
+          scrollCarousel(trendingContent, 300);
+        });
+        
+        // Add event listeners for trending filter buttons
+        const trendingFilterButtons = document.querySelectorAll('.section-actions .filter-btn');
+        trendingFilterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            trendingFilterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.dataset.filter;
+            
+            // Filter trending content
+            filterTrendingContent(filterType);
+          });
+        });
+        
+        // Create combined popular content section
+        const uniqueMovies = allMovies.filter((movie, index, self) => 
+          index === self.findIndex((m) => m.id === movie.id)
+        );
+        const uniqueSeries = allSeries.filter((series, index, self) => 
+          index === self.findIndex((s) => s.id === series.id)
+        );
+        const combinedContent = shuffleArray([...uniqueMovies, ...uniqueSeries]).slice(0, 24);
+        const combinedSection = createSection('Contenido Popular', combinedContent, false, 'see-all-combined');
+        mainContent.appendChild(combinedSection);
+
+        // Add event listener to see all button
+        document.getElementById('see-all-combined')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          // Navigate to a combined view that shows both movies and series
+          loadCombinedContent();
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading home content:', error);
+        hideSpinner();
+      }
+    }
+
+    // Scroll carousel
+    function scrollCarousel(carouselElement, scrollAmount) {
+      carouselElement.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+
+    // Filter trending content
+    function filterTrendingContent(filterType) {
+      // Clear trending content
+      const trendingContent = document.getElementById('trending-content');
+      trendingContent.innerHTML = '';
+      
+      // Filter content based on type
+      let filteredContent = [];
+      
+      if (filterType === 'all') {
+        filteredContent = trendingContentData;
+      } else if (filterType === 'movie') {
+        filteredContent = trendingMoviesData;
+      } else if (filterType === 'tv') {
+        filteredContent = trendingSeriesData;
+      }
+      
+      // Render filtered content
+      filteredContent.forEach(item => {
+        const carouselItem = document.createElement('div');
+        carouselItem.className = 'carousel-item';
+        carouselItem.appendChild(createContentCard(item));
+        trendingContent.appendChild(carouselItem);
+      });
+    }
+
+    // Load movies content
+    async function loadMoviesContent() {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">Películas</h2>
+          <div class="section-actions">
+            <button class="filter-btn active" data-filter="popular">
+              <i class="fas fa-sort-amount-down"></i> Populares
+            </button>
+            <button class="filter-btn" data-filter="rating">
+              <i class="fas fa-star"></i> Mejor valoradas
+            </button>
+            <button class="filter-btn" data-filter="recent">
+              <i class="fas fa-calendar-alt"></i> Recientes
+            </button>
+          </div>
+        `;
+        mainContent.appendChild(sectionHeader);
+        
+        // Fetch more movies if needed
+        if (moviesContent.length < 24) {
+          const additionalMovies = await fetchContentByIds(
+            shuffleArray([
+              ...contentIds.inicioMovieIds,
+              ...contentIds.netflixMovieIds,
+              ...contentIds.disneyMovieIds,
+              ...contentIds.hboMovieIds,
+              ...contentIds.primeMovieIds
+            ]), 
+            'movie'
+          );
+          
+          // Remove duplicates
+          const movieIds = new Set(moviesContent.map(movie => movie.id));
+          const newMovies = additionalMovies.filter(movie => !movieIds.has(movie.id));
+          
+          // Update movies content
+          moviesContent = [...moviesContent, ...newMovies];
+        }
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        contentGrid.id = 'movies-content-grid';
+        
+        // Render movies
+        const moviesToShow = shuffleArray(moviesContent).slice(0, 24);
+        moviesToShow.forEach(movie => {
+          contentGrid.appendChild(createContentCard(movie));
+        });
+        
+        mainContent.appendChild(contentGrid);
+        
+        // Add event listeners to filter buttons
+        const filterButtons = document.querySelectorAll('.filter-btn[data-filter]');
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.dataset.filter;
+            
+            // Sort content based on filter type
+            let sortedMovies = [...moviesContent];
+            
+            if (filterType === 'rating') {
+              sortedMovies.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+            } else if (filterType === 'recent') {
+              sortedMovies.sort((a, b) => {
+                const dateA = a.release_date || '';
+                const dateB = b.release_date || '';
+                return dateB.localeCompare(dateA);
+              });
+            } else {
+              // For popular, use the shuffled array
+              sortedMovies = shuffleArray(moviesContent);
+            }
+            
+            // Clear and repopulate content grid
+            const contentGrid = document.getElementById('movies-content-grid');
+            contentGrid.innerHTML = '';
+            
+            sortedMovies.slice(0, 24).forEach(movie => {
+              contentGrid.appendChild(createContentCard(movie));
+            });
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading movies content:', error);
+        hideSpinner();
+      }
+    }
+
+    // Load series content
+    async function loadSeriesContent() {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">Series</h2>
+          <div class="section-actions">
+            <button class="filter-btn active" data-filter="popular">
+              <i class="fas fa-sort-amount-down"></i> Populares
+            </button>
+            <button class="filter-btn" data-filter="rating">
+              <i class="fas fa-star"></i> Mejor valoradas
+            </button>
+            <button class="filter-btn" data-filter="recent">
+              <i class="fas fa-calendar-alt"></i> Recientes
+            </button>
+          </div>
+        `;
+        mainContent.appendChild(sectionHeader);
+        
+        // Fetch more series if needed
+        if (seriesContent.length < 24) {
+          const additionalSeries = await fetchContentByIds(
+            shuffleArray([
+              ...contentIds.inicioSeriesIds,
+              ...contentIds.netflixSeriesIds,
+              ...contentIds.disneySeriesIds,
+              ...contentIds.hboSeriesIds,
+              ...contentIds.primeSeriesIds
+            ]), 
+            'tv'
+          );
+          
+          // Remove duplicates
+          const seriesIds = new Set(seriesContent.map(series => series.id));
+          const newSeries = additionalSeries.filter(series => !seriesIds.has(series.id));
+          
+          // Update series content
+          seriesContent = [...seriesContent, ...newSeries];
+        }
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        contentGrid.id = 'series-content-grid';
+        
+        // Render series
+        const seriesToShow = shuffleArray(seriesContent).slice(0, 24);
+        seriesToShow.forEach(series => {
+          contentGrid.appendChild(createContentCard(series));
+        });
+        
+        mainContent.appendChild(contentGrid);
+        
+        // Add event listeners to filter buttons
+        const filterButtons = document.querySelectorAll('.filter-btn[data-filter]');
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.dataset.filter;
+            
+            // Sort content based on filter type
+            let sortedSeries = [...seriesContent];
+            
+            if (filterType === 'rating') {
+              sortedSeries.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+            } else if (filterType === 'recent') {
+              sortedSeries.sort((a, b) => {
+                const dateA = a.first_air_date || '';
+                const dateB = b.first_air_date || '';
+                return dateB.localeCompare(dateA);
+              });
+            } else {
+              // For popular, use the shuffled array
+              sortedSeries = shuffleArray(seriesContent);
+            }
+            
+            // Clear and repopulate content grid
+            const contentGrid = document.getElementById('series-content-grid');
+            contentGrid.innerHTML = '';
+            
+            sortedSeries.slice(0, 24).forEach(series => {
+              contentGrid.appendChild(createContentCard(series));
+            });
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading series content:', error);
+        hideSpinner();
+      }
+    }
+
+    // Load doramas content
+    async function loadDoramasContent() {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">Doramas</h2>
+          <div class="section-actions">
+            <button class="filter-btn active" data-filter="series">
+              <i class="fas fa-tv"></i> Series
+            </button>
+            <button class="filter-btn" data-filter="movies">
+              <i class="fas fa-film"></i> Películas
+            </button>
+          </div>
+        `;
+        mainContent.appendChild(sectionHeader);
+        
+        // Fetch doramas
+        const doramasSeries = await fetchContentByIds(contentIds.doramasSeriesIds, 'tv');
+        const doramasMovies = await fetchContentByIds(contentIds.doramasMovieIds, 'movie');
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        contentGrid.id = 'doramas-content-grid';
+        
+        // Initially show only series
+        doramasSeries.forEach(dorama => {
+          contentGrid.appendChild(createContentCard(dorama));
+        });
+        
+        mainContent.appendChild(contentGrid);
+        
+        // Add event listeners to filter buttons
+        const filterButtons = document.querySelectorAll('.filter-btn[data-filter]');
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.dataset.filter;
+            
+            // Clear content grid
+            const contentGrid = document.getElementById('doramas-content-grid');
+            contentGrid.innerHTML = '';
+            
+            // Show content based on filter type
+            if (filterType === 'series') {
+              doramasSeries.forEach(dorama => {
+                contentGrid.appendChild(createContentCard(dorama));
+              });
+            } else if (filterType === 'movies') {
+              doramasMovies.forEach(dorama => {
+                contentGrid.appendChild(createContentCard(dorama));
+              });
+            }
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading doramas content:', error);
+        hideSpinner();
+        
+        // Show error message
+        mainContent.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle empty-icon"></i>
+            <h3 class="empty-title">Error al cargar el contenido</h3>
+            <p class="empty-text">Ocurrió un error al cargar los doramas. Intenta de nuevo más tarde.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Load my list content
+    function loadMyListContent() {
+      try {
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">Mi Lista</h2>
+        `;
+        mainContent.appendChild(sectionHeader);
+        
+        // Load continue watching
+        continueWatchingContentData = loadContinuarViendo();
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        
+        if (continueWatchingContentData.length === 0) {
+          // Show empty state
+          const emptyState = document.createElement('div');
+          emptyState.className = 'empty-state';
+          emptyState.innerHTML = `
+            <i class="fas fa-film empty-icon"></i>
+            <h3 class="empty-title">No hay contenido en tu lista</h3>
+            <p class="empty-text">Agrega contenido a tu lista para verlo aquí.</p>
+          `;
+          contentGrid.appendChild(emptyState);
+        } else {
+          // Render continue watching
+          continueWatchingContentData.forEach(item => {
+            const card = createContentCard(item, true);
+            contentGrid.appendChild(card);
+          });
+        }
+        
+        mainContent.appendChild(contentGrid);
+        
+      } catch (error) {
+        console.error('Error loading my list content:', error);
+      }
+    }
+
+    // Load combined content (movies and series)
+    async function loadCombinedContent() {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">Todo el Contenido</h2>
+          <div class="section-actions">
+            <button class="filter-btn active" data-filter="all">
+              <i class="fas fa-sort-amount-down"></i> Populares
+            </button>
+            <button class="filter-btn" data-filter="rating">
+              <i class="fas fa-star"></i> Mejor valoradas
+            </button>
+            <button class="filter-btn" data-filter="recent">
+              <i class="fas fa-calendar-alt"></i> Recientes
+            </button>
+          </div>
+        `;
+        mainContent.appendChild(sectionHeader);
+        
+        // Collect all movie and series IDs to fetch
+        const allMovieIds = [
+          ...contentIds.inicioMovieIds,
+          ...contentIds.netflixMovieIds,
+          ...contentIds.disneyMovieIds,
+          ...contentIds.hboMovieIds,
+          ...contentIds.primeMovieIds
+        ];
+        
+        const allSeriesIds = [
+          ...contentIds.inicioSeriesIds,
+          ...contentIds.netflixSeriesIds,
+          ...contentIds.disneySeriesIds,
+          ...contentIds.hboSeriesIds,
+          ...contentIds.primeSeriesIds
+        ];
+        
+        // Remove duplicates from IDs arrays
+        const uniqueMovieIds = [...new Set(allMovieIds)];
+        const uniqueSeriesIds = [...new Set(allSeriesIds)];
+        
+        // Fetch content with unique IDs
+        const movies = await fetchContentByIds(shuffleArray(uniqueMovieIds), 'movie');
+        const series = await fetchContentByIds(shuffleArray(uniqueSeriesIds), 'tv');
+        
+        // Update global content arrays
+        moviesContent = movies;
+        seriesContent = series;
+        
+        // Combine movies and series
+        const combinedContent = shuffleArray([...movies, ...series]);
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        contentGrid.id = 'combined-content-grid';
+        
+        // Render combined content
+        const contentToShow = combinedContent.slice(0, 48);
+        contentToShow.forEach(item => {
+          contentGrid.appendChild(createContentCard(item));
+        });
+        
+        mainContent.appendChild(contentGrid);
+        
+        // Add event listeners to filter buttons
+        const filterButtons = document.querySelectorAll('.filter-btn[data-filter]');
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.dataset.filter;
+            
+            // Sort content based on filter type
+            let sortedContent = [...combinedContent];
+            
+            if (filterType === 'rating') {
+              sortedContent.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+            } else if (filterType === 'recent') {
+              sortedContent.sort((a, b) => {
+                const dateA = a.release_date || a.first_air_date || '';
+                const dateB = b.release_date || b.first_air_date || '';
+                return dateB.localeCompare(dateA);
+              });
+            }
+            
+            // Clear and repopulate content grid
+            const contentGrid = document.getElementById('combined-content-grid');
+            contentGrid.innerHTML = '';
+            
+            sortedContent.slice(0, 48).forEach(item => {
+              contentGrid.appendChild(createContentCard(item));
+            });
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error loading combined content:', error);
+        hideSpinner();
+      }
+    }
+
+    // Handle search
+    function handleSearch() {
+      const query = searchInput.value.trim().toLowerCase();
+      
+      if (!query) {
+        return;
+      }
+      
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create section header
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">Resultados para: "${query}"</h2>
+        `;
+        mainContent.appendChild(sectionHeader);
+        
+        // Determine what content to search
+        let contentToSearch = [];
+
+        // Always search across all available content for better results
+        contentToSearch = [
+          ...trendingContentData,
+          ...moviesContent,
+          ...seriesContent,
+          ...continueWatchingContentData
+        ];
+
+        // Remove duplicates by ID
+        const uniqueContent = Array.from(
+          new Map(contentToSearch.map(item => [item.id, item])).values()
+        );
+
+        // Improve search by checking more fields and using case-insensitive comparison
+        const searchResults = uniqueContent.filter(item => {
+          const title = (item.title || item.name || '').toLowerCase();
+          const originalTitle = (item.original_title || item.original_name || '').toLowerCase();
+          const overview = (item.overview || '').toLowerCase();
+          
+          return title.includes(query) || 
+                 originalTitle.includes(query) || 
+                 overview.includes(query);
+        });
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        
+        if (searchResults.length === 0) {
+          // Show empty state
+          const emptyState = document.createElement('div');
+          emptyState.className = 'empty-state';
+          emptyState.innerHTML = `
+            <i class="fas fa-search empty-icon"></i>
+            <h3 class="empty-title">No se encontraron resultados</h3>
+            <p class="empty-text">Intenta con otra búsqueda.</p>
+          `;
+          contentGrid.appendChild(emptyState);
+        } else {
+          // Render search results
+          searchResults.forEach(item => {
+            contentGrid.appendChild(createContentCard(item));
+          });
+        }
+        
+        mainContent.appendChild(contentGrid);
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error handling search:', error);
+        hideSpinner();
+      }
+    }
+
+    // Handle service click
+    async function handleServiceClick(e) {
+      const service = e.currentTarget.dataset.service;
+      
+      // Reset all services
+      const serviceItems = document.querySelectorAll('.service-item');
+      serviceItems.forEach(item => item.classList.remove('active'));
+      
+      // If clicking the same service, reset
+      if (currentService === service) {
+        currentService = null;
+        loadHomeContent();
+        return;
+      }
+      
+      // Set active service
+      e.currentTarget.classList.add('active');
+      currentService = service;
+      
+      // Show spinner
+      showSpinner();
+      
+      try {
+        let movieIds = [];
+        let seriesIds = [];
+        
+        // Get IDs based on selected service
+        switch (service) {
+          case 'netflix':
+            movieIds = contentIds.netflixMovieIds;
+            seriesIds = contentIds.netflixSeriesIds;
+            break;
+          case 'disney':
+            movieIds = contentIds.disneyMovieIds;
+            seriesIds = contentIds.disneySeriesIds;
+            break;
+          case 'hbo':
+            movieIds = contentIds.hboMovieIds;
+            seriesIds = contentIds.hboSeriesIds;
+            break;
+          case 'prime':
+            movieIds = contentIds.primeMovieIds;
+            seriesIds = contentIds.primeSeriesIds;
+            break;
+        }
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+        
+        // Create service header
+        const serviceName = service.charAt(0).toUpperCase() + service.slice(1);
+        const serviceHeader = document.createElement('div');
+        serviceHeader.className = 'section-header';
+        serviceHeader.innerHTML = `
+          <h2 class="section-title">Contenido de ${serviceName}</h2>
+          <div class="section-actions">
+            <button class="filter-btn active" data-filter="all">
+              <i class="fas fa-sort-amount-down"></i> Todos
+            </button>
+            <button class="filter-btn" data-filter="movie">
+              <i class="fas fa-film"></i> Películas
+            </button>
+            <button class="filter-btn" data-filter="tv">
+              <i class="fas fa-tv"></i> Series
+            </button>
+          </div>
+        `;
+        mainContent.appendChild(serviceHeader);
+        
+        // Fetch content for the selected service
+        const movies = await fetchContentByIds(shuffleArray(movieIds), 'movie');
+        const series = await fetchContentByIds(shuffleArray(seriesIds), 'tv');
+        
+        // Combine movies and series
+        const combinedContent = shuffleArray([...movies, ...series]);
+        
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+        contentGrid.id = 'service-content-grid';
+        
+        // Render combined content
+        combinedContent.forEach(item => {
+          contentGrid.appendChild(createContentCard(item));
+        });
+        
+        mainContent.appendChild(contentGrid);
+        
+        // Add event listeners to filter buttons
+        const filterButtons = document.querySelectorAll('.section-actions .filter-btn');
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.dataset.filter;
+            
+            // Filter content based on type
+            let filteredContent = [];
+            
+            if (filterType === 'all') {
+              filteredContent = combinedContent;
+            } else if (filterType === 'movie') {
+              filteredContent = movies;
+            } else if (filterType === 'tv') {
+              filteredContent = series;
+            }
+            
+            // Clear and repopulate content grid
+            const contentGrid = document.getElementById('service-content-grid');
+            contentGrid.innerHTML = '';
+            
+            filteredContent.forEach(item => {
+              contentGrid.appendChild(createContentCard(item));
+            });
+          });
+        });
+        
+        // Hide spinner
+        hideSpinner();
+        
+      } catch (error) {
+        console.error('Error fetching service content:', error);
+        hideSpinner();
+        
+        // Show error message
+        mainContent.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle empty-icon"></i>
+            <h3 class="empty-title">Error al cargar el contenido</h3>
+            <p class="empty-text">Ocurrió un error al cargar el contenido. Intenta de nuevo más tarde.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Handle genre click
+    async function handleGenreClick(genreId, genreName) {
+      // Show spinner
+      showSpinner();
+      
+      try {
+        // Fetch movies and series
+        const allMovies = await fetchContentByIds([
+          ...contentIds.inicioMovieIds,
+          ...contentIds.netflixMovieIds,
+          ...contentIds.disneyMovieIds,
+          ...contentIds.hboMovieIds,
+          ...contentIds.primeMovieIds
+        ], 'movie');
+        
+        const allSeries = await fetchContentByIds([
+          ...contentIds.inicioSeriesIds,
+          ...contentIds.netflixSeriesIds,
+          ...contentIds.disneySeriesIds,
+          ...contentIds.hboSeriesIds,
+          ...contentIds.primeSeriesIds
+        ], 'tv');
+        
+        // Get details with genres for each movie
+        const moviesWithGenres = await Promise.all(
+          allMovies.map(async (movie) => {
+            try {
+              const response = await fetch(`${API_BASE_URL}/movie/${movie.id}?api_key=${API_KEY}&language=es-MX`);
+              const data = await response.json();
+              return {
+                ...movie,
+                genres: data.genres || []
+              };
+            } catch (error) {
+              console.error(`Error fetching genres for movie ${movie.id}:`, error);
+              return {
+                ...movie,
+                genres: []
+              };
+            }
+          })
+        );
+        
+        // Get details with genres for each series
+        const seriesWithGenres = await Promise.all(
+          allSeries.map(async (serie) => {
+            try {
+              const response = await fetch(`${API_BASE_URL}/tv/${serie.id}?api_key=${API_KEY}&language=es-MX`);
+              const data = await response.json();
+              return {
+                ...serie,
+                genres: data.genres || []
+              };
+            } catch (error) {
+              console.error(`Error fetching genres for series ${serie.id}:`, error);
+              return {
+                ...serie,
+                genres: []
+              };
+            }
+          })
+        );
+        
+        // Filter by genre
+        const filteredMovies = moviesWithGenres.filter(movie => 
+          movie.genres && movie.genres.some(genre => genre.id === parseInt(genreId))
+        );
+        
+        const filteredSeries = seriesWithGenres.filter(serie => 
+          serie.genres && serie.genres.some(genre => genre.id === parseInt(genreId))
+        );
+        
+        // Combine results
+        const genreResults = [...filteredMovies, ...filteredSeries];
+        
+        // Clear main content
+        mainContent.innerHTML = '';
+
+        // Create genre header
+        const genreHeader = document.createElement('div');
+        genreHeader.className = 'section-header';
+        genreHeader.innerHTML = `
+          <h2 class="section-title">Género: ${genreName}</h2>
+        `;
+        mainContent.appendChild(genreHeader);
+
+        // Create content grid
+        const contentGrid = document.createElement('div');
+        contentGrid.className = 'content-grid';
+
+        if (genreResults.length === 0) {
+          // Show empty state
+          const emptyState = document.createElement('div');
+          emptyState.className = 'empty-state';
+          emptyState.innerHTML = `
+            <i class="fas fa-film empty-icon"></i>
+            <h3 class="empty-title">No hay contenido disponible</h3>
+            <p class="empty-text">No se encontró contenido para este género.</p>
+          `;
+          contentGrid.appendChild(emptyState);
+        } else {
+          // Render genre results - movies and series mixed together
+          shuffleArray(genreResults).forEach(item => {
+            contentGrid.appendChild(createContentCard(item));
+          });
+        }
+
+        mainContent.appendChild(contentGrid);
+        
+      } catch (error) {
+        console.error('Error fetching genre content:', error);
+        
+        // Show error state
+        mainContent.innerHTML = '';
+        const errorState = document.createElement('div');
+        errorState.className = 'empty-state';
+        errorState.innerHTML = `
+          <i class="fas fa-exclamation-circle empty-icon"></i>
+          <h3 class="empty-title">Error al cargar el contenido</h3>
+          <p class="empty-text">Ocurrió un error al cargar el contenido. Intenta de nuevo más tarde.</p>
+        `;
+        mainContent.appendChild(errorState);
+        
+      } finally {
+        // Hide spinner
+        hideSpinner();
+      }
+    }
+
+    // Create section
+    function createSection(title, content, showFilters = false, seeAllId = null) {
+      const section = document.createElement('section');
+      
+      // Create section header
+      const sectionHeader = document.createElement('div');
+      sectionHeader.className = 'section-header';
+      
+      if (showFilters) {
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">${title}</h2>
+          <div class="section-actions">
+            <button class="filter-btn active">
+              <i class="fas fa-fire"></i> Todos
+            </button>
+            <button class="filter-btn">
+              <i class="fas fa-film"></i> Películas
+            </button>
+            <button class="filter-btn">
+              <i class="fas fa-tv"></i> Series
+            </button>
+          </div>
+        `;
+      } else if (seeAllId) {
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">${title}</h2>
+          <a href="#" class="filter-btn" id="${seeAllId}">
+            Ver todo <i class="fas fa-chevron-right"></i>
+          </a>
+        `;
+      } else {
+        sectionHeader.innerHTML = `
+          <h2 class="section-title">${title}</h2>
+        `;
+      }
+      
+      section.appendChild(sectionHeader);
+      
+      // Create content grid
+      const contentGrid = document.createElement('div');
+      contentGrid.className = 'content-grid';
+      
+      if (content.length === 0) {
+        // Show empty state
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+          <i class="fas fa-film empty-icon"></i>
+          <h3 class="empty-title">No hay contenido disponible</h3>
+          <p class="empty-text">No se encontró contenido para mostrar en esta sección.</p>
+        `;
+        contentGrid.appendChild(emptyState);
+      } else {
+        // Render content
+        content.forEach(item => {
+          const isMyList = title === 'Continuar viendo';
+          contentGrid.appendChild(createContentCard(item, isMyList));
+        });
+      }
+      
+      section.appendChild(contentGrid);
+      
+      return section;
+    }
+
+    // Create content card
+    function createContentCard(item, isMyList = false) {
+      const card = document.createElement('div');
+      card.className = 'content-card';
+      card.dataset.id = item.id;
+      card.dataset.type = item.media_type;
+      
+      const posterPath = item.poster_path 
+        ? `${IMG_BASE_URL}/w500${item.poster_path}` 
+        : 'https://via.placeholder.com/300x450?text=No+Image';
+      
+      const title = item.title || item.name || 'Sin título';
+      const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
+      const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+      const type = item.media_type === 'movie' ? 'Película' : 'Serie';
+      
+      card.innerHTML = `
+        <img src="${posterPath}" alt="${title}" class="card-poster">
+        <div class="card-badge">${type}</div>
+        <div class="card-rating"><i class="fas fa-star"></i> ${rating}</div>
+        <div class="card-info">
+          <h3 class="card-title">${title}</h3>
+          <div class="card-meta">
+            <span>${year}</span>
+            <span>${type}</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="card-btn play-btn" title="Ver ahora">
+            <i class="fas fa-play"></i>
+          </button>
+          <button class="card-btn info-btn" title="Más información">
+            <i class="fas fa-info-circle"></i>
+          </button>
+          ${isMyList ? `
+            <button class="card-btn remove-btn" title="Eliminar de la lista">
+              <i class="fas fa-times"></i>
+            </button>
+          ` : ''}
+        </div>
+      `;
+      
+      // Add event listeners
+      card.querySelector('.play-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        saveToContinuarViendo(item);
+        window.open(`go:${item.id}`, '_blank');
+      });
+      
+      card.querySelector('.info-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        showMovieDetailsModal(item.id, item.media_type);
+      });
+      
+      if (isMyList) {
+        card.querySelector('.remove-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeFromContinuarViendo(item.id);
+          card.remove();
+          
+          // Check if continue watching is empty
+          continueWatchingContentData = loadContinuarViendo();
+          if (continueWatchingContentData.length === 0 && currentSection === 'my-list') {
+            loadMyListContent();
+          }
+        });
+      }
+      
+      card.addEventListener('click', () => {
+        saveToContinuarViendo(item);
+        window.open(`go:${item.id}`, '_blank');
+      });
+      
+      return card;
+    }
+
+    // Create featured content
+    function createFeaturedContent(item) {
+      if (!item) {
+        return document.createElement('div');
+      }
+      
+      const featured = document.createElement('div');
+      featured.className = 'featured-content';
+      featured.style.backgroundImage = `url('${IMG_BASE_URL}/original${item.backdrop_path}')`;
+      
+      const description = item.overview || 
+                         (item.media_type === 'movie' ? 
+                          'Una película imperdible que te mantendrá al borde de tu asiento.' : 
+                          'Una serie fascinante con personajes inolvidables y una trama adictiva.');
+      
+      const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
+      const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+      const type = item.media_type === 'movie' ? 'Película' : 'Serie';
+      const runtime = item.runtime ? `${Math.floor(item.runtime / 60)}h ${item.runtime % 60}m` : '';
+      
+      featured.innerHTML = `
+        <div class="featured-overlay">
+          <span class="featured-badge">Destacado</span>
+          <h1 class="featured-title">${item.title || item.name}</h1>
+          <div class="featured-info">
+            <span>${year}</span>
+            ${runtime ? `<span>${runtime}</span>` : ''}
+            <div class="featured-rating">
+              <i class="fas fa-star"></i>
+              <span>${rating}</span>
+            </div>
+            <span>${type}</span>
+          </div>
+          <p class="featured-description">
+            ${description.substring(0, 200)}${description.length > 200 ? '...' : ''}
+          </p>
+          <div class="featured-actions">
+            <button class="btn btn-primary" id="featured-play-btn">
+              <i class="fas fa-play"></i> Ver ahora
+            </button>
+            <button class="btn btn-secondary" id="featured-info-btn">
+              <i class="fas fa-info-circle"></i> Más información
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Add event listeners
+      featured.querySelector('#featured-play-btn').addEventListener('click', () => {
+        saveToContinuarViendo(item);
+        window.open(`go:${item.id}`, '_blank');
+      });
+      
+      featured.querySelector('#featured-info-btn').addEventListener('click', () => {
+        showMovieDetailsModal(item.id, item.media_type);
+      });
+      
+      return featured;
+    }
+
+    // Show movie details modal
+    function showMovieDetailsModal(itemId, itemType) {
+      // Create modal container
+      movieDetailsModalContainer.innerHTML = `
+        <div class="modal-overlay">
+          <div class="modal-container">
+            <div class="modal-content">
+              <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
+                <div class="spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add event listener to close modal
+      document.querySelector('.modal-overlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+          movieDetailsModalContainer.innerHTML = '';
+        }
+      });
+      
+      // Fetch movie details
+      fetchMovieDetails(itemId, itemType);
+    }
+
+    // Fetch movie details
+    async function fetchMovieDetails(itemId, itemType) {
+      try {
+        // Fetch details
+        const detailsResponse = await fetch(
+          `${API_BASE_URL}/${itemType}/${itemId}?api_key=${API_KEY}&language=es-MX`
+        );
+        
+        if (!detailsResponse.ok) {
+          throw new Error('No se pudo cargar la información');
+        }
+        
+        const details = await detailsResponse.json();
+        
+        // Fetch credits
+        const creditsResponse = await fetch(
+          `${API_BASE_URL}/${itemType}/${itemId}/credits?api_key=${API_KEY}&language=es-MX`
+        );
+        
+        if (!creditsResponse.ok) {
+          throw new Error('No se pudo cargar la información del reparto');
+        }
+        
+        const credits = await creditsResponse.json();
+        
+        // Get director
+        const director = credits.crew.find(person => person.job.toLowerCase() === 'director');
+        const directorName = director ? director.name : 'No disponible';
+        
+        // Get main cast
+        const mainCast = credits.cast.slice(0, 5).map(actor => actor.name).join(', ') || 'No disponible';
+        
+        // Format runtime
+        const formatRuntime = (minutes) => {
+          if (!minutes) return 'No disponible';
+          const hours = Math.floor(minutes / 60);
+          const mins = minutes % 60;
+          return `${hours}h ${mins}m`;
+        };
+        
+        // Format date
+        const formatDate = (dateString) => {
+          if (!dateString) return 'No disponible';
+          return new Date(dateString).getFullYear().toString();
+        };
+        
+        // Create seasons list for TV shows
+        let seasonsHTML = '';
+        if (itemType === 'tv' && details.seasons && details.seasons.length > 0) {
+          seasonsHTML = `
+            <div class="seasons-list">
+              ${details.seasons
+                .filter(season => season.season_number > 0)
+                .map(season => `
+                  <div class="season-item">
+                    <span>${season.name}</span>
+                    <span class="episode-count">${season.episode_count} episodios</span>
+                  </div>
+                `).join('')}
+            </div>
+          `;
+        }
+        
+        // Create genres HTML
+        const genresHTML = details.genres.map(genre => 
+          `<span class="modal-genre">${genre.name}</span>`
+        ).join('');
+        
+        // Update modal content
+        const modalContainer = document.querySelector('.modal-container');
+        modalContainer.innerHTML = `
+          ${details.backdrop_path ? `
+            <div class="modal-backdrop" style="background-image: url('${IMG_BASE_URL}/original${details.backdrop_path}')">
+              <div class="modal-backdrop-overlay"></div>
+            </div>
+          ` : ''}
+          <div class="modal-content">
+            <button class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+              <div class="modal-poster">
+                <img 
+                  src="${details.poster_path ? `${IMG_BASE_URL}/w500${details.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Image'}" 
+                  alt="${details.title || details.name}" 
+                />
+              </div>
+              <div class="modal-info">
+                <h2 class="modal-title">${details.title || details.name}</h2>
+                <div class="modal-meta">
+                  <span>${formatDate(details.release_date || details.first_air_date)}</span>
+                  ${details.runtime ? `<span>${formatRuntime(details.runtime)}</span>` : ''}
+                  <span class="modal-rating">
+                    <i class="fas fa-star"></i> ${details.vote_average.toFixed(1)}
+                  </span>
+                </div>
+                <div class="modal-genres">
+                  ${genresHTML}
+                </div>
+                <p class="modal-overview">${details.overview || 'No hay descripción disponible.'}</p>
+                <div class="modal-details">
+                  <div class="modal-detail">
+                    <span class="detail-label">Director:</span>
+                    <span class="detail-value">${directorName}</span>
+                  </div>
+                  <div class="modal-detail">
+                    <span class="detail-label">Reparto principal:</span>
+                    <span class="detail-value">${mainCast}</span>
+                  </div>
+                  ${itemType === 'tv' && details.number_of_seasons ? `
+                    <div class="modal-detail">
+                      <span class="detail-label">Temporadas:</span>
+                      <span class="detail-value">${details.number_of_seasons}</span>
+                      ${seasonsHTML}
+                    </div>
+                  ` : ''}
+                </div>
+                <div class="modal-actions">
+                  <button class="btn btn-primary">
+                    <i class="fas fa-play"></i> Ver ahora
+                  </button>
+                  <button class="btn btn-secondary" id="trailer-btn">
+                    <i class="fas fa-film"></i> Ver trailer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Add event listeners
+        document.querySelector('.modal-close').addEventListener('click', () => {
+          movieDetailsModalContainer.innerHTML = '';
+        });
+        
+        document.querySelector('.modal-actions .btn-primary').addEventListener('click', () => {
+          // Save to continue watching
+          saveToContinuarViendo({
+            id: details.id,
+            media_type: itemType,
+            title: details.title,
+            name: details.name,
+            poster_path: details.poster_path,
+            backdrop_path: details.backdrop_path,
+            release_date: details.release_date,
+            first_air_date: details.first_air_date,
+            vote_average: details.vote_average
+          });
+          
+          window.open(`go:${details.id}`, '_blank');
+          movieDetailsModalContainer.innerHTML = '';
+        });
+
+        document.querySelector('#trailer-btn').addEventListener('click', () => {
+          fetchTrailer(details.id, itemType);
+        });
+        
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+        
+        // Show error in modal
+        const modalContainer = document.querySelector('.modal-container');
+        modalContainer.innerHTML = `
+          <div class="modal-content">
+            <button class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center;">
+              <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #f87171; margin-bottom: 1rem;"></i>
+              <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Error al cargar la información</h3>
+              <p style="color: var(--text-secondary);">${error.message || 'Error desconocido'}</p>
+            </div>
+          </div>
+        `;
+        
+        // Add event listener to close button
+        document.querySelector('.modal-close').addEventListener('click', () => {
+          movieDetailsModalContainer.innerHTML = '';
+        });
+      }
+    }
+
+    // Fetch trailer
+    async function fetchTrailer(itemId, itemType) {
+      try {
+        // Show spinner
+        showSpinner();
+        
+        // Fetch videos
+        const videosResponse = await fetch(
+          `${API_BASE_URL}/${itemType}/${itemId}/videos?api_key=${API_KEY}&language=es-MX`
+        );
+        
+        if (!videosResponse.ok) {
+          throw new Error('No se pudo cargar la información de videos');
+        }
+        
+        const videos = await videosResponse.json();
+        
+        // Find trailer
+        let trailer = videos.results.find(video => 
+          video.type.toLowerCase() === 'trailer' && video.site.toLowerCase() === 'youtube'
+        );
+        
+        // If no trailer in Spanish, try English
+        if (!trailer) {
+          const englishVideosResponse = await fetch(
+            `${API_BASE_URL}/${itemType}/${itemId}/videos?api_key=${API_KEY}`
+          );
+          
+          if (englishVideosResponse.ok) {
+            const englishVideos = await englishVideosResponse.json();
+            trailer = englishVideos.results.find(video => 
+              video.type.toLowerCase() === 'trailer' && video.site.toLowerCase() === 'youtube'
+            );
+          }
+        }
+        
+        // If still no trailer, try to find any video
+        if (!trailer && videos.results.length > 0) {
+          trailer = videos.results.find(video => video.site.toLowerCase() === 'youtube');
+        }
+        
+        // Hide spinner
+        hideSpinner();
+        
+        if (trailer) {
+          showTrailerModal(trailer);
+        } else {
+          showToast('info', 'Trailer no disponible', 'No se encontró un trailer para este contenido');
+        }
+        
+      } catch (error) {
+        console.error('Error fetching trailer:', error);
+        hideSpinner();
+        showToast('error', 'Error', 'No se pudo cargar el trailer');
+      }
+    }
+
+    // Show trailer modal
+    function showTrailerModal(trailer) {
+      const trailerModalContainer = document.getElementById('trailer-modal-container');
+      
+      // Create modal container
+      trailerModalContainer.innerHTML = `
+        <div class="modal-overlay">
+          <div class="modal-container" style="max-width: 800px;">
+            <div class="modal-content" style="padding: 0;">
+              <button class="modal-close">
+                <i class="fas fa-times"></i>
+              </button>
+              <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                <iframe 
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                  src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" 
+                  title="${trailer.name}" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+                </iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add event listeners
+      document.querySelector('#trailer-modal-container .modal-close').addEventListener('click', () => {
+        trailerModalContainer.innerHTML = '';
+      });
+      
+      document.querySelector('#trailer-modal-container .modal-overlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+          trailerModalContainer.innerHTML = '';
+        }
+      });
+    }
+
+    // Generate featured content
+    async function generateFeaturedContent() {
+      try {
+        // Get featured movies
+        const featuredMovies = await fetchContentByIds(featuredMovieIds, 'movie');
+        
+        // Get featured series
+        const featuredSeries = await fetchContentByIds(featuredSeriesIds, 'tv');
+        
+        // Get random movies
+        const randomMovieIds = shuffleArray([...contentIds.inicioMovieIds])
+          .filter(id => !featuredMovieIds.includes(id))
+          .slice(0, 2);
+        const randomMovies = await fetchContentByIds(randomMovieIds, 'movie');
+        
+        // Get random series
+        const randomSeriesIds = shuffleArray([...contentIds.inicioSeriesIds])
+          .filter(id => !featuredSeriesIds.includes(id))
+          .slice(0, 2);
+        const randomSeries = await fetchContentByIds(randomSeriesIds, 'tv');
+        
+        // Combine and shuffle content
+        const content = shuffleArray([
+          ...featuredMovies,
+          ...featuredSeries,
+          ...randomMovies,
+          ...randomSeries
+        ]);
+        
+        return content;
+      } catch (error) {
+        console.error('Error generating featured content:', error); 
+        return [];
+      }
+    }
+
+    // Load continue watching content
+    function loadContinuarViendo() {
+      const savedContent = localStorage.getItem('continuarViendo');
+      if (!savedContent) return [];
+      
+      try {
+        const content = JSON.parse(savedContent);
+        return content.sort((a, b) => (b.lastVisited || 0) - (a.lastVisited || 0));
+      } catch (error) {
+        console.error('Error parsing continuarViendo:', error);
+        return [];
+      }
+    }
+
+    // Save to continue watching
+    function saveToContinuarViendo(item) {
+      const continuarViendo = loadContinuarViendo();
+      
+      // Check if item already exists
+      const existingIndex = continuarViendo.findIndex(content => content.id === item.id);
+      
+      if (existingIndex !== -1) {
+        // Update last visited date
+        continuarViendo[existingIndex].lastVisited = Date.now();
+      } else {
+        // Add new item
+        continuarViendo.push({
+          ...item,
+          lastVisited: Date.now()
+        });
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('continuarViendo', JSON.stringify(continuarViendo));
+      
+      // Update continue watching content
+      continueWatchingContentData = loadContinuarViendo();
+    }
+
+    // Remove from continue watching
+    function removeFromContinuarViendo(id) {
+      const continuarViendo = loadContinuarViendo();
+      const updatedContent = continuarViendo.filter(item => item.id !== id);
+      
+      // Save to localStorage
+      localStorage.setItem('continuarViendo', JSON.stringify(updatedContent));
+      
+      // Update continue watching content
+      continueWatchingContentData = updatedContent;
+    }
+
+    // Show toast notification
+    function showToast(type, title, message) {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      
+      let icon = '';
+      switch (type) {
+        case 'success':
+          icon = '<i class="fas fa-check-circle"></i>';
+          break;
+        case 'error':
+          icon = '<i class="fas fa-exclamation-circle"></i>';
+          break;
+        case 'info':
+          icon = '<i class="fas fa-info-circle"></i>';
+          break;
+        default:
+          icon = '<i class="fas fa-bell"></i>';
+      }
+      
+      toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close"><i class="fas fa-times"></i></div>
+      `;
+      
+      // Add to container
+      toastContainer.appendChild(toast);
+      
+      // Add event listener to close button
+      toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.classList.add('hide');
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      });
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 5000);
+    }
+
+    // Show spinner
+    function showSpinner() {
+      spinnerContainer.style.display = 'flex';
+    }
+
+    // Hide spinner
+    function hideSpinner() {
+      spinnerContainer.style.display = 'none';
+    }
+
+    // Fetch content by IDs
+    async function fetchContentByIds(ids, type) {
+      if (!ids || ids.length === 0) return [];
+      
+      try {
+        const promises = ids.map(id => 
+          fetch(`${API_BASE_URL}/${type}/${id}?api_key=${API_KEY}&language=es-MX`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Error fetching ${type} ${id}`);
+            }
+            return response.json();
+          })
+          .then(data => ({
+            ...data,
+            media_type: type
+          }))
+          .catch(error => {
+            console.error(`Error fetching ${id}:`, error);
+            return null;
+          })
+        );
+        
+        const results = await Promise.all(promises);
+        return results.filter(item => item !== null);
+        
+      } catch (error) {
+        console.error(`Error fetching ${type} content:`, error);
+        return [];
+      }
+    }
+
+    // Shuffle array
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+  </script>
+</body>
+</html>
